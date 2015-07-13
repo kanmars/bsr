@@ -101,7 +101,7 @@ public class BootStrap {
 	}
 	
 	/**
-	 * 启动Worker线程
+	 * ，生成管道线，生成管道线处理器，启动Worker线程
 	 * @throws InterruptedException 
 	 * @throws NumberFormatException 
 	 */
