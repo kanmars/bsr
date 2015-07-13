@@ -219,24 +219,12 @@ public class BSRHttpServletRequest  implements HttpServletRequest {
 		this.protocol = protocol;
 	}
 
-	/**
-	 * 未知参数，目前永久返回为空
-	 * //TODO 将来进行弥补
-	 */
 	public String scheme = null;
 	
-	/**
-	 * 未知参数，目前永久返回为空
-	 * //TODO 将来进行弥补
-	 */
 	public String getScheme() {
 		return scheme;
 	}
 
-	/**
-	 * 未知参数，目前永久返回为空
-	 * //TODO 将来进行弥补
-	 */
 	public void setScheme(String scheme) {
 		this.scheme = scheme;
 	}
@@ -669,106 +657,190 @@ public class BSRHttpServletRequest  implements HttpServletRequest {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	/**
+	 * 上下文路径
+	 */
+	private String contextPath;
 
+	/**
+	 * 获取上下文路径
+	 */
 	public String getContextPath() {
-		// TODO Auto-generated method stub
-		return null;
+		return contextPath;
 	}
 
+	/**
+	 * 设置上下文路径
+	 * @param contextPath
+	 */
+	public void setContextPath(String contextPath) {
+		this.contextPath = contextPath;
+	}
+	
+	/**
+	 * 查询字符串
+	 */
+	private String queryString;
+	/**
+	 * 获取查询字符串
+	 */
 	public String getQueryString() {
-		// TODO Auto-generated method stub
-		return null;
+		return queryString;
+	}
+	/**
+	 * 设置查询字符串
+	 * @param queryString
+	 */
+	public void setQueryString(String queryString) {
+		this.queryString = queryString;
 	}
 
+	private String remoteUser;
+	
+	public void setRemoteUser(String remoteUser) {
+		this.remoteUser = remoteUser;
+	}
 	public String getRemoteUser() {
-		// TODO Auto-generated method stub
-		return null;
+		return remoteUser;
 	}
 
+	/**
+	 * 用户权限验证
+	 * //TODO 待开发
+	 */
 	public boolean isUserInRole(String role) {
-		// TODO Auto-generated method stub
 		return false;
 	}
-
+	
+	/**
+	 * 用户权限验证
+	 * //TODO 待开发
+	 */
 	public Principal getUserPrincipal() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	private String requestedSessionId;
+	
+	/**
+	 * sessionId
+	 */
 	public String getRequestedSessionId() {
-		// TODO Auto-generated method stub
-		return null;
+		return requestedSessionId;
+	}
+	
+	public void setRequestedSessionId(String requestedSessionId) {
+		this.requestedSessionId = requestedSessionId;
 	}
 
+	private String requestURI;
+	
 	public String getRequestURI() {
-		// TODO Auto-generated method stub
-		return null;
+		return requestURI;
 	}
 
-	public StringBuffer getRequestURL() {
-		// TODO Auto-generated method stub
-		return null;
+	public void setRequestURI(String requestURI) {
+		this.requestURI = requestURI;
 	}
+
+	private String requestURL;
+	
+	public StringBuffer getRequestURL() {
+		return new StringBuffer(requestURL);
+	}
+
+	public void setRequestURL(String requestURL) {
+		this.requestURL = requestURL;
+	}
+
+	private String servletPath;
 
 	public String getServletPath() {
-		// TODO Auto-generated method stub
-		return null;
+		return servletPath;
 	}
 
+	public void setServletPath(String servletPath) {
+		this.servletPath = servletPath;
+	}
+
+	/**
+	 * session获取
+	 * //TODO 待开发
+	 */
 	public HttpSession getSession(boolean create) {
-		// TODO Auto-generated method stub
+		
 		return null;
 	}
 
 	public HttpSession getSession() {
-		// TODO Auto-generated method stub
-		return null;
+		return getSession(true);
 	}
-
+	
+	/**
+	 * 未知参数，目前永久返回false
+	 */
 	public boolean isRequestedSessionIdValid() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
+	/**
+	 * 未知参数，目前永久返回false
+	 */
 	public boolean isRequestedSessionIdFromCookie() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
+	/**
+	 * 未知参数，目前永久返回false
+	 */
 	public boolean isRequestedSessionIdFromURL() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
+	/**
+	 * 未知参数，目前永久返回false
+	 */
 	public boolean isRequestedSessionIdFromUrl() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
+	/**
+	 * 未知参数，目前永久返回false
+	 */
 	public boolean authenticate(HttpServletResponse response)
 			throws IOException, ServletException {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
+	/**
+	 * 未知参数，目前永久返回false
+	 */
 	public void login(String username, String password) throws ServletException {
-		// TODO Auto-generated method stub
 		
 	}
 
+	/**
+	 * 未知参数，目前永久返回false
+	 */
 	public void logout() throws ServletException {
-		// TODO Auto-generated method stub
 		
 	}
 
+	Map<String, Part> partsMap = null;
+	/**
+	 * Servlet3.0参数
+	 */
 	public Collection<Part> getParts() throws IOException, ServletException {
-		// TODO Auto-generated method stub
-		return null;
+		return partsMap.values();
 	}
-
+	
+	/**
+	 * Servlet3.0参数
+	 */
 	public Part getPart(String name) throws IOException, ServletException {
-		// TODO Auto-generated method stub
-		return null;
+		return partsMap.get(name);
 	}
 
 }
