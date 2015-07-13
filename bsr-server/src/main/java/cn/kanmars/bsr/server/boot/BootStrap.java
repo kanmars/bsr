@@ -11,6 +11,7 @@ import cn.kanmars.bsr.server.constant.BSRConstants;
 import cn.kanmars.bsr.server.pipe.BSRPipe;
 import cn.kanmars.bsr.server.pipe.BSRPipeProcessor;
 import cn.kanmars.bsr.server.pipe.impl.EchoPipeLine;
+import cn.kanmars.bsr.server.pipe.impl.HttpPipeLine;
 import cn.kanmars.bsr.server.socket.channel.ServerSocketChannelHolder;
 import cn.kanmars.bsr.server.socket.selector.SelectorHolder;
 import cn.kanmars.bsr.server.thread.back.BackGroundThread;
@@ -108,7 +109,8 @@ public class BootStrap {
 	public static void runWorkerThread() throws NumberFormatException, InterruptedException{
 		/**准备管道线*/
 		List<BSRPipe> bsrPipeLine = new ArrayList<BSRPipe>();
-		bsrPipeLine.add(new EchoPipeLine());
+		//bsrPipeLine.add(new EchoPipeLine());
+		bsrPipeLine.add(new HttpPipeLine());
 		/**生成管道线处理器*/
 		BSRPipeProcessor bsrPipeProcessor = new BSRPipeProcessor(bsrPipeLine);
 		/**启动Worker线程*/

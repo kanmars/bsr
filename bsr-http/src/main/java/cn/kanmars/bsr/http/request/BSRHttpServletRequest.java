@@ -172,6 +172,15 @@ public class BSRHttpServletRequest  implements HttpServletRequest {
 		}
 		return null;
 	}
+	
+	/**
+	 * 设置一个请求参数
+	 * @param name
+	 * @param value
+	 */
+	public void putParameter(String name,String value){
+		parameterMap.put(name, new String[]{value});
+	}
 
 	/**
 	 * 获取参数的名称
@@ -554,7 +563,7 @@ public class BSRHttpServletRequest  implements HttpServletRequest {
 	 * 获取一个头部
 	 */
 	public String getHeader(String name) {
-		return null;
+		return headers.get(name);
 	}
 	
 	/**
