@@ -798,6 +798,7 @@ public class BSRHttpServletRequest  implements HttpServletRequest {
 		BSRHttpSession session = BSRHttpSessionHolder.getBSRHttpSession(getRequestedSessionId());
 		if(create && session == null){
 			session = new BSRHttpSession();
+			BSRHttpSessionHolder.addABSRHttpSession(session);
 		}
 		return session;
 	}
