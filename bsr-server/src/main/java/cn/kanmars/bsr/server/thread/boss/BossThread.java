@@ -6,6 +6,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.Random;
 
 import cn.kanmars.bsr.server.context.BSRContext;
 import cn.kanmars.bsr.server.context.BSRContextRegister;
@@ -17,6 +18,9 @@ import cn.kanmars.bsr.server.log.Logger;
  *
  */
 public class BossThread extends Thread {
+	
+	public String name = ""+new Random().nextInt();
+	
 	private Selector selector;
 	private ServerSocketChannel serverSocketChannel;
 
@@ -51,6 +55,7 @@ public class BossThread extends Thread {
 					continue;
 				}
 				Iterator<SelectionKey> ite = selector.selectedKeys().iterator();
+				System.out.println("线程["+name+"] size = "+selector.selectedKeys().size());
 				while(ite.hasNext()){
 					try{
 						SelectionKey key = ite.next();

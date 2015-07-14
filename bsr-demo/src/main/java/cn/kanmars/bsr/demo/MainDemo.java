@@ -3,6 +3,7 @@ package cn.kanmars.bsr.demo;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import cn.kanmars.bsr.server.cache.BSRPoolsHolder;
@@ -92,8 +93,9 @@ public static void main(String[] args) throws IOException, InterruptedException 
 	 * @throws NumberFormatException 
 	 */
 	public static void runBossThread() throws NumberFormatException, InterruptedException{
+		ExecutorService executorService = Executors.newFixedThreadPool(Integer.parseInt(BSRConfiger.getConfig(BSRConstants.BOSS_THREAD_NUMBER)));
 		BossThread bt = new BossThread(SelectorHolder.getSocketSelector(), ServerSocketChannelHolder.getServerSocketChannel());
-		Executors.newFixedThreadPool(Integer.parseInt(BSRConfiger.getConfig(BSRConstants.BOSS_THREAD_NUMBER))).execute(bt);
+		executorService.execute(bt);
 		Thread.sleep(Long.parseLong(BSRConfiger.getConfig(BSRConstants.THREAD_SKIPTIME)));
 	}
 	
