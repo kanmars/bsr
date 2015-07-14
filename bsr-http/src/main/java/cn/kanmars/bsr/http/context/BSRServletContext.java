@@ -5,8 +5,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.EventListener;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterRegistration;
@@ -22,37 +24,36 @@ import javax.servlet.descriptor.JspConfigDescriptor;
 
 public class BSRServletContext  implements ServletContext {
 	
-	private static BSRServletContext singleBSRServletContext = null;
-	
-	public static BSRServletContext getBSRServletContext(){
-		if(singleBSRServletContext==null){
-			singleBSRServletContext = new BSRServletContext();
-		}
-		return new BSRServletContext();
-	}
+	public String contextPath = null;
 
 	public String getContextPath() {
-		// TODO Auto-generated method stub
-		return null;
+		return contextPath;
 	}
 
+	public void setContextPath(String contextPath) {
+		this.contextPath = contextPath;
+	}
+
+	public static Map<String,ServletContext> servletContextMap = new ConcurrentHashMap<String, ServletContext>();
+	
 	public ServletContext getContext(String uripath) {
-		// TODO Auto-generated method stub
-		return null;
+		ServletContext context = servletContextMap.get(uripath);
+		if(context == null){
+			context = new BSRServletContext();
+			servletContextMap.put(uripath, context);
+		}
+		return context;
 	}
 
 	public int getMajorVersion() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	public int getMinorVersion() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	public int getEffectiveMajorVersion() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 

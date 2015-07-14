@@ -14,7 +14,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.DispatcherType;
@@ -477,11 +476,14 @@ public class BSRHttpServletRequest  implements HttpServletRequest {
 		this.localPort = localPort;
 	}
 
+	
+	public ServletContext servletContext;
+	
 	/**
 	 * 获取servletContext上下文
 	 */
 	public ServletContext getServletContext() {
-		return BSRServletContext.getBSRServletContext();
+		return servletContext;
 	}
 
 	/**
@@ -681,24 +683,16 @@ public class BSRHttpServletRequest  implements HttpServletRequest {
 	}
 	
 	/**
-	 * 上下文路径
-	 */
-	private String contextPath;
-
-	/**
 	 * 获取上下文路径
 	 */
 	public String getContextPath() {
-		return contextPath;
+		ServletContext servletContext = getServletContext();
+		if(servletContext!=null){
+			return servletContext.getContextPath();
+		}
+		return null;
 	}
 
-	/**
-	 * 设置上下文路径
-	 * @param contextPath
-	 */
-	public void setContextPath(String contextPath) {
-		this.contextPath = contextPath;
-	}
 	
 	/**
 	 * 查询字符串
