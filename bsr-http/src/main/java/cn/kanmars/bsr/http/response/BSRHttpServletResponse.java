@@ -2,12 +2,21 @@ package cn.kanmars.bsr.http.response;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+
+import cn.kanmars.bsr.http.util.StringUtils;
 
 /**
  * BSR服务器的HttpServletResPonse
@@ -16,184 +25,215 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class BSRHttpServletResponse implements HttpServletResponse {
 
+	private String characterEncoding;
+	
 	public String getCharacterEncoding() {
-		// TODO Auto-generated method stub
-		return null;
+		return characterEncoding;
+	}
+	
+	public void setCharacterEncoding(String charset) {
+		this.characterEncoding = charset;
 	}
 
+	private String contentType;
+	
 	public String getContentType() {
-		// TODO Auto-generated method stub
-		return null;
+		return contentType;
 	}
+	
+	public void setContentType(String type) {
+		this.contentType = type;
+	}
+	
+	private ServletOutputStream servletOutputStream;
 
+	public void setOutPutStream(ServletOutputStream servletOutputStream){
+		this.servletOutputStream = servletOutputStream;
+	}
+	
 	public ServletOutputStream getOutputStream() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return servletOutputStream;
 	}
 
 	public PrintWriter getWriter() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return new PrintWriter(servletOutputStream);
 	}
+	
+	private int contentLength;
 
-	public void setCharacterEncoding(String charset) {
-		// TODO Auto-generated method stub
-		
+	public int getContentLength(){
+		return contentLength;
 	}
-
 	public void setContentLength(int len) {
-		// TODO Auto-generated method stub
-		
+		contentLength = len;
 	}
+	
 
-	public void setContentType(String type) {
-		// TODO Auto-generated method stub
-		
-	}
+	private int buffserSize;
+	
 
 	public void setBufferSize(int size) {
-		// TODO Auto-generated method stub
-		
+		this.buffserSize = size;
 	}
 
 	public int getBufferSize() {
-		// TODO Auto-generated method stub
-		return 0;
+		return buffserSize;
 	}
 
 	public void flushBuffer() throws IOException {
-		// TODO Auto-generated method stub
 		
 	}
 
 	public void resetBuffer() {
-		// TODO Auto-generated method stub
-		
+
 	}
 
+	/**
+	 * 流是否关闭，默认未关闭
+	 */
 	public boolean isCommitted() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	public void reset() {
-		// TODO Auto-generated method stub
 		
 	}
 
-	public void setLocale(Locale loc) {
-		// TODO Auto-generated method stub
-		
-	}
-
+	private Locale locale = null;
+	
 	public Locale getLocale() {
-		// TODO Auto-generated method stub
-		return null;
+		return locale;
 	}
+
+	public void setLocale(Locale locale) {
+		this.locale = locale;
+	}
+	
+	public List<Cookie> cookies=new ArrayList<Cookie>();
 
 	public void addCookie(Cookie cookie) {
-		// TODO Auto-generated method stub
-		
+		cookies.add(cookie);
 	}
 
 	public boolean containsHeader(String name) {
-		// TODO Auto-generated method stub
+		
 		return false;
 	}
 
 	public String encodeURL(String url) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		return URLEncoder.encode(url);
 	}
 
 	public String encodeRedirectURL(String url) {
-		// TODO Auto-generated method stub
-		return null;
+		return URLEncoder.encode(url);
 	}
 
 	public String encodeUrl(String url) {
-		// TODO Auto-generated method stub
-		return null;
+		return URLEncoder.encode(url);
 	}
 
 	public String encodeRedirectUrl(String url) {
-		// TODO Auto-generated method stub
-		return null;
+		return URLEncoder.encode(url);
 	}
 
-	public void sendError(int sc, String msg) throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void sendError(int sc) throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void sendRedirect(String location) throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void setDateHeader(String name, long date) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void addDateHeader(String name, long date) {
-		// TODO Auto-generated method stub
-		
-	}
+	
+	/**
+	 * 头部信息区域
+	 */
+	private Map<String,String> headers = new HashMap<String, String>();
 
 	public void setHeader(String name, String value) {
-		// TODO Auto-generated method stub
-		
+		headers.put(name, value);
 	}
 
 	public void addHeader(String name, String value) {
-		// TODO Auto-generated method stub
-		
+		headers.put(name, value);
 	}
 
 	public void setIntHeader(String name, int value) {
-		// TODO Auto-generated method stub
-		
+		headers.put(name, ""+value);
 	}
 
 	public void addIntHeader(String name, int value) {
-		// TODO Auto-generated method stub
-		
+		headers.put(name, ""+value);
+	}
+	
+	public void setDateHeader(String name, long date) {
+		headers.put(name, ""+date);
 	}
 
+	public void addDateHeader(String name, long date) {
+		headers.put(name, ""+date);
+	}
+	
+	/**
+	 * 获取一个头部
+	 */
+	public String getHeader(String name) {
+		return headers.get(name);
+	}
+	
+	/**
+	 * 获取头部信息Map
+	 * @return
+	 */
+	public Map<String, String> getHeaders() {
+		return headers;
+	}
+	
+	public Collection<String> getHeaderNames() {
+		return headers.keySet();
+	}
+	
+	/**
+	 * 获取某一个header的集合
+	 */
+	public Collection<String> getHeaders(String name) {
+		String header_str = headers.get(name);
+		List<String> header = new ArrayList<String>();
+		for(String s : header_str.split(";")){
+			if(StringUtils.isNotEmpty(s)){
+				header.add(s);
+			}
+		}
+		return header;
+	}
+
+	private int status_code;
+	
+	private String status_message;
+	
 	public void setStatus(int sc) {
-		// TODO Auto-generated method stub
-		
+		this.status_code = sc;
+		this.status_message = "";
 	}
 
 	public void setStatus(int sc, String sm) {
-		// TODO Auto-generated method stub
-		
+		this.status_code = sc;
+		this.status_message = sm;
 	}
 
 	public int getStatus() {
-		// TODO Auto-generated method stub
-		return 0;
+		return status_code;
+	}
+	
+	public void sendError(int sc, String msg) throws IOException {
+		this.status_code = sc;
+		this.status_message = msg;
 	}
 
-	public String getHeader(String name) {
-		// TODO Auto-generated method stub
-		return null;
+	public void sendError(int sc) throws IOException {
+		this.status_code = sc;
+		this.status_message = "";
+		
 	}
 
-	public Collection<String> getHeaders(String name) {
-		// TODO Auto-generated method stub
-		return null;
+	private String redirectLocation;
+	
+	public void sendRedirect(String location) throws IOException {
+		redirectLocation = location;
 	}
-
-	public Collection<String> getHeaderNames() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
 
 }
