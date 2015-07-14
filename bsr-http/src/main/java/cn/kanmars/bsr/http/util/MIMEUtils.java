@@ -12,7 +12,7 @@ public class MIMEUtils {
 	}
 	
 	public static void main(String[] args) {
-		System.out.println(getMIME(".jpg"));
+		System.out.println(getMIME(".png"));
 	}
 	
 }
