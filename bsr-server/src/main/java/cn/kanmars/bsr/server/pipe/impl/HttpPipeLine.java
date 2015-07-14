@@ -28,22 +28,26 @@ public void execute(Object bsrContext_, String bsrEvents) {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			BSRHttpServletResponse response = BSRHttpServletResponseParser.createResponse(200, null);
+			/**常用的报文*/
+			BSRHttpServletResponse response = BSRHttpServletResponseParser.createResponse(200,"OK", null);
 			try {
 				response.getOutputStream().write("这是一篇非常长非常长的文章".getBytes("GBK"));
 				response.setContentType("text/html; charset=GBK");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+			/**重定向报文*/
+			BSRHttpServletResponse response2 = BSRHttpServletResponseParser.createSendRedirectResponse(301, "Moved Permanently", null, "http://www.baidu.com");
+
+			/**报文发送*/
 			try {
-				bsrContext.write(BSRHttpServletResponseParser.transResponseToBytes(response));
+				bsrContext.write(BSRHttpServletResponseParser.transResponseToBytes(response2));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}	
 		}else if(bsrEvents.equals(BSREvents.OP_CLOSE)){
 			System.out.println("发生远程客户端关闭事件");
 		}
-		
 		
 		doNext(bsrContext_,bsrEvents);
 	}

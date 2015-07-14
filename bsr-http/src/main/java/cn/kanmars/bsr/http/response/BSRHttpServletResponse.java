@@ -215,8 +215,18 @@ public class BSRHttpServletResponse implements HttpServletResponse {
 
 	private int status_code;
 	
-	private String status_message;
+	private String status_message="OK";
 	
+	public String getStatus_message() {
+		return status_message;
+	}
+
+	public void setStatus_message(String status_message) {
+		if(StringUtils.isNotEmpty(status_message)){
+			this.status_message = status_message;
+		}
+	}
+
 	public void setStatus(int sc) {
 		this.status_code = sc;
 		this.status_message = "";
