@@ -84,6 +84,7 @@ public class WorkerThread extends Thread {
 						}else{
 							Logger.debug("通讯异常");
 						}
+						
 					}
 					//将ByteBuffer释放到缓存中
 					BSRPoolsHolder.getBSRByteBufferPool().releaseT(byteBuffer);
