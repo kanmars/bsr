@@ -56,38 +56,42 @@ public class BossThread extends Thread {
 					//选择出后，立即删除该键
 					selector.selectedKeys().remove(key);
 					//当客户端有连接之后，创建BSRContext并且注册入全局注册表中
-					if(key.isAcceptable()){
-						Logger.debug("客户端发起链接..");
-						ServerSocketChannel serverSocketChannel = (ServerSocketChannel)key.channel();
-						//将socketChannel注册到选择器中
-						SocketChannel socketChannel = serverSocketChannel.accept();
-						socketChannel.configureBlocking(false);
-						socketChannel.register(selector, SelectionKey.OP_READ);
-						//构建上下文
-						BSRContext bsrContext = new BSRContext();
-						bsrContext.setSocketChannel(socketChannel);
-						bsrContext.setCreateTime(System.currentTimeMillis());
-						bsrContext.setOperationTime(System.currentTimeMillis());
-						bsrContext.setLive(true);
-						
-						boolean result = BSRContextRegister.registerBSRContext(socketChannel,bsrContext);
-						if(!result){
-							try{
-								BSRContextRegister.removeBSRContext(socketChannel);
-							}catch(Exception e){
-								e.printStackTrace();
+					try{
+						if(key.isAcceptable()){
+							Logger.info("客户端发起链接..");
+							ServerSocketChannel serverSocketChannel = (ServerSocketChannel)key.channel();
+							//将socketChannel注册到选择器中
+							SocketChannel socketChannel = serverSocketChannel.accept();
+							socketChannel.configureBlocking(false);
+							socketChannel.register(selector, SelectionKey.OP_READ);
+							//构建上下文
+							BSRContext bsrContext = new BSRContext();
+							bsrContext.setSocketChannel(socketChannel);
+							bsrContext.setCreateTime(System.currentTimeMillis());
+							bsrContext.setOperationTime(System.currentTimeMillis());
+							bsrContext.setLive(true);
+							
+							boolean result = BSRContextRegister.registerBSRContext(socketChannel,bsrContext);
+							if(!result){
+								try{
+									BSRContextRegister.removeBSRContext(socketChannel);
+								}catch(Exception e){
+									e.printStackTrace();
+								}
 							}
 						}
-					}
-					//当客户端链接可读之后
-					if(key.isReadable()){
-						Logger.debug("客户端消息输入..");
-						SocketChannel socketChannel = (SocketChannel)key.channel();
-						BSRContext bsrContext = BSRContextRegister.getBSRContext(socketChannel);
-						boolean addResult = BSRContextRegister.addReadableBSRContext(bsrContext);
-						if(addResult){
-							key.interestOps(SelectionKey.OP_READ);
+						//当客户端链接可读之后
+						if(key.isReadable()){
+							Logger.debug("客户端消息输入..");
+							SocketChannel socketChannel = (SocketChannel)key.channel();
+							BSRContext bsrContext = BSRContextRegister.getBSRContext(socketChannel);
+							boolean addResult = BSRContextRegister.addReadableBSRContext(bsrContext);
+							if(addResult){
+								key.interestOps(SelectionKey.OP_READ);
+							}
 						}
+					}catch(Exception e){
+						Logger.error("发生了异常", e);
 					}
 				}
 			} catch (IOException e) {

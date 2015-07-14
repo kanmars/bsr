@@ -11,6 +11,7 @@ import cn.kanmars.bsr.http.util.MIMEUtils;
 import cn.kanmars.bsr.http.util.StringUtils;
 import cn.kanmars.bsr.server.context.BSRContext;
 import cn.kanmars.bsr.server.event.BSREvents;
+import cn.kanmars.bsr.server.log.Logger;
 import cn.kanmars.bsr.server.pipe.BSRPipe;
 
 /**
@@ -23,11 +24,13 @@ public class HttpProtocolPipe extends BSRPipe{
 		if(bsrEvents.equals(BSREvents.OP_READ)){
 			BSRContext bsrContext = (BSRContext)objs[0];
 			String req = new String(bsrContext.getContent());
-			System.out.println("客户端请求为["+req+"]");
+			Logger.debug("客户端请求为["+req+"]");
 			
 			try {
 				if(BSRHttpServletRequestParser.isReceivedAll(bsrContext.getBao())){
+					
 					BSRHttpServletRequest bsrHttpServletRequest = (BSRHttpServletRequest) BSRHttpServletRequestParser.parse(bsrContext.getBao());
+					bsrContext.getBao().reset();
 					bsrHttpServletRequest.setRemoteAddr(bsrContext.getSocketChannel().getRemoteAddress().toString());
 					bsrHttpServletRequest.setRemoteHost(((InetSocketAddress)bsrContext.getSocketChannel().getRemoteAddress()).getHostString());
 					/**常用的报文*/
