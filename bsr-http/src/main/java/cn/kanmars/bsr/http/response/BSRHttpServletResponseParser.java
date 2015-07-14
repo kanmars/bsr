@@ -50,7 +50,7 @@ public class BSRHttpServletResponseParser {
 	/**
 	 * 创建一个重定向的响应对象
 	 * @param status		状态	301	永久重定向	302	临时重定向
-	 * @param sm		状态描述	Moved Permanently永久重定型   Moved Temporarily临时重定型
+	 * @param sm		状态描述	Moved Permanently永久重定向   Moved Temporarily临时重定向
 	 * @param header	报文header域
 	 * @param outputStream	输出流
 	 * @return
