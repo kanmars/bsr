@@ -55,7 +55,7 @@ public class BossThread extends Thread {
 					continue;
 				}
 				Iterator<SelectionKey> ite = selector.selectedKeys().iterator();
-				System.out.println("线程["+name+"] size = "+selector.selectedKeys().size());
+				//System.out.println("线程["+name+"] size = "+selector.selectedKeys().size());
 				while(ite.hasNext()){
 					try{
 						SelectionKey key = ite.next();
@@ -100,11 +100,6 @@ public class BossThread extends Thread {
 							key.cancel();
 						}
 					}catch(Exception e){
-						try{
-							ite.remove();
-						}catch(Exception e2){
-							//	e2.printStackTrace();
-						}
 						Logger.error("发生了异常", e);
 					}
 				}
