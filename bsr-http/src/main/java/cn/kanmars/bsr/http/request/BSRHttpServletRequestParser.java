@@ -4,13 +4,18 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.servlet.ServletInputStream;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
+import cn.kanmars.bsr.http.context.BSRServletContext;
 import cn.kanmars.bsr.http.stream.BSRServletInputStream;
 import cn.kanmars.bsr.http.util.ByteUtils;
+import cn.kanmars.bsr.http.util.StringUtils;
 
 public class BSRHttpServletRequestParser{
 	
@@ -152,6 +157,31 @@ public class BSRHttpServletRequestParser{
 				bsrHttpServletRequest.setCharacterEncoding(default_characterencoding);
 			}
 		}
+		//COOKIE解析
+		String cookies_str = bsrHttpServletRequest.getHeader("Cookie");
+		if(cookies_str!=null){
+			String[] cookie_one_array = cookies_str.split(";");
+			List<Cookie> cookie_list = new ArrayList<Cookie>();
+			for(String cookie_one : cookie_one_array){
+				if(cookie_one.indexOf("=")>0){
+					String cookie_key = cookie_one.substring(0,cookie_one.indexOf("="));
+					String cookie_value = cookie_one.substring(cookie_one.indexOf("=")+1);
+					if(StringUtils.isNotEmpty(cookie_key)&&StringUtils.isNotEmpty(cookie_value)){
+						Cookie cookie = new Cookie(cookie_key.trim(), cookie_value.trim());
+						cookie_list.add(cookie);
+					}
+				}
+			}
+			Cookie[] request_cookie = new Cookie[cookie_list.size()];
+			
+			for(int i=0;i<request_cookie.length;i++){
+				request_cookie[i]=cookie_list.get(i);
+			}
+			
+			bsrHttpServletRequest.setCookies(request_cookie);
+		}
+		
+		
 		//根据字符集解析URL
 		bsrHttpServletRequest.setRequestURI(URLDecoder.decode(requestURI,bsrHttpServletRequest.getCharacterEncoding()));
 		String host = bsrHttpServletRequest.getHeader("Host");
@@ -160,7 +190,15 @@ public class BSRHttpServletRequestParser{
 		}
 		bsrHttpServletRequest.setRequestURL(bsrHttpServletRequest.getScheme()+"://"+ host +bsrHttpServletRequest.getRequestURI());
 		//解析queryString
-		bsrHttpServletRequest.setQueryString(bsrHttpServletRequest.getRequestURI().substring(bsrHttpServletRequest.getRequestURI().lastIndexOf("/")));
+		int last_ = bsrHttpServletRequest.getRequestURI().lastIndexOf("/");
+		if(last_>=0){
+			int first_wen = bsrHttpServletRequest.getRequestURI().indexOf("?",last_);
+			if(first_wen>=0){
+				bsrHttpServletRequest.setQueryString(bsrHttpServletRequest.getRequestURI().substring(first_wen+1));
+			}else{
+				bsrHttpServletRequest.setQueryString("");
+			}
+		}
 		
 		//系统信息
 		bsrHttpServletRequest.setServerName(host.split(":")[0]);
@@ -202,7 +240,20 @@ public class BSRHttpServletRequestParser{
 		content.replaceAll("+", " ");//特殊字符处理
 		content = URLDecoder.decode(content,bsrHttpServletRequest.getCharacterEncoding());
 		bsrHttpServletRequest.setInputStream(new BSRServletInputStream(content));
-		//解析param
+		//解析请求url中的param
+		String queryStr = bsrHttpServletRequest.getQueryString();
+		if(StringUtils.isNotEmpty(queryStr)){
+			String[] query_name_value_array = queryStr.split("&");
+			for(String query_name_value : query_name_value_array){
+				if(query_name_value.indexOf("=")>0){
+					String name = query_name_value.split("=")[0];
+					String value = query_name_value.split("=")[0];
+					bsrHttpServletRequest.putParameter(name, value);
+				}
+				
+			}
+		}
+		//解析报文内容中的param
 		String[] param_key_value_s = content.split("&");
 		for(String param_key_value:param_key_value_s){
 			if(param_key_value.indexOf("=")>0){
@@ -211,6 +262,7 @@ public class BSRHttpServletRequestParser{
 				bsrHttpServletRequest.putParameter(name, value);
 			}
 		}
+		
 		
 		
 		return bsrHttpServletRequest;

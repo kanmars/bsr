@@ -1,5 +1,7 @@
 package cn.kanmars.bsr.server.pipe.impl;
 
+import java.net.InetSocketAddress;
+
 import cn.kanmars.bsr.http.request.BSRHttpServletRequest;
 import cn.kanmars.bsr.http.request.BSRHttpServletRequestParser;
 import cn.kanmars.bsr.server.context.BSRContext;
@@ -17,6 +19,8 @@ public void execute(Object bsrContext_, String bsrEvents) {
 			try {
 				if(BSRHttpServletRequestParser.isReceivedAll(bsrContext.getBao())){
 					BSRHttpServletRequest bsrHttpServletRequest = (BSRHttpServletRequest) BSRHttpServletRequestParser.parse(bsrContext.getBao());
+					bsrHttpServletRequest.setRemoteAddr(bsrContext.getSocketChannel().getRemoteAddress().toString());
+					bsrHttpServletRequest.setRemoteHost(((InetSocketAddress)bsrContext.getSocketChannel().getRemoteAddress()).getHostString());
 				}
 			} catch (Exception e) {
 				e.printStackTrace();

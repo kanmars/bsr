@@ -29,6 +29,7 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 
 import cn.kanmars.bsr.http.context.BSRServletContext;
+import cn.kanmars.bsr.http.util.StringUtils;
 
 /**
  * BSR服务器的HttpServletRequest
@@ -656,14 +657,15 @@ public class BSRHttpServletRequest  implements HttpServletRequest {
 	}
 
 	/**
-	 * 获取服务器信息
+	 * 获取服务器相对路径信息
 	 */
 	public void setPathInfo(String pathInfo) {
+		
 		this.pathInfo = pathInfo;
 	}
-
+	
 	public String getPathTranslated() {
-		// TODO Auto-generated method stub
+		
 		return null;
 	}
 	
@@ -737,11 +739,11 @@ public class BSRHttpServletRequest  implements HttpServletRequest {
 	 * sessionId
 	 */
 	public String getRequestedSessionId() {
-		return requestedSessionId;
-	}
-	
-	public void setRequestedSessionId(String requestedSessionId) {
-		this.requestedSessionId = requestedSessionId;
+		String header_jessionid = getHeader("jessionid");
+		if(StringUtils.isNotEmpty(header_jessionid)){
+			return header_jessionid;
+		}
+		return getHeader("jessionid");
 	}
 
 	private String requestURI;
