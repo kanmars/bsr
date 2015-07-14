@@ -5,9 +5,8 @@ import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -16,6 +15,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.kanmars.bsr.http.stream.BSRServletOutputStream;
+import cn.kanmars.bsr.http.util.DateUtils;
 import cn.kanmars.bsr.http.util.StringUtils;
 
 /**
@@ -24,6 +25,16 @@ import cn.kanmars.bsr.http.util.StringUtils;
  *
  */
 public class BSRHttpServletResponse implements HttpServletResponse {
+	
+	private String protocol="HTTP/1.1";
+
+	public String getProtocol() {
+		return protocol;
+	}
+
+	public void setProtocol(String protocol) {
+		this.protocol = protocol;
+	}
 
 	private String characterEncoding;
 	
@@ -45,11 +56,7 @@ public class BSRHttpServletResponse implements HttpServletResponse {
 		this.contentType = type;
 	}
 	
-	private ServletOutputStream servletOutputStream;
-
-	public void setOutPutStream(ServletOutputStream servletOutputStream){
-		this.servletOutputStream = servletOutputStream;
-	}
+	private ServletOutputStream servletOutputStream = new BSRServletOutputStream();
 	
 	public ServletOutputStream getOutputStream() throws IOException {
 		return servletOutputStream;
@@ -143,6 +150,12 @@ public class BSRHttpServletResponse implements HttpServletResponse {
 	 */
 	private Map<String,String> headers = new HashMap<String, String>();
 
+	public void setHeaders(Map<String, String> headers) {
+		if(headers!=null){
+			this.headers = headers;
+		}
+	}
+
 	public void setHeader(String name, String value) {
 		headers.put(name, value);
 	}
@@ -160,11 +173,11 @@ public class BSRHttpServletResponse implements HttpServletResponse {
 	}
 	
 	public void setDateHeader(String name, long date) {
-		headers.put(name, ""+date);
+		headers.put(name, DateUtils.getGMTStr(new Date(date)));
 	}
 
 	public void addDateHeader(String name, long date) {
-		headers.put(name, ""+date);
+		headers.put(name, DateUtils.getGMTStr(new Date(date)));
 	}
 	
 	/**

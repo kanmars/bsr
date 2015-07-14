@@ -1,9 +1,12 @@
 package cn.kanmars.bsr.server.pipe.impl;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import cn.kanmars.bsr.http.request.BSRHttpServletRequest;
 import cn.kanmars.bsr.http.request.BSRHttpServletRequestParser;
+import cn.kanmars.bsr.http.response.BSRHttpServletResponse;
+import cn.kanmars.bsr.http.response.BSRHttpServletResponseParser;
 import cn.kanmars.bsr.server.context.BSRContext;
 import cn.kanmars.bsr.server.event.BSREvents;
 import cn.kanmars.bsr.server.pipe.BSRPipe;
@@ -25,8 +28,18 @@ public void execute(Object bsrContext_, String bsrEvents) {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			//String response = "<html><form action=\"http://localhost:1234/kkk\"><input name='a' value='aa'/><input name='b' value='bb'/><input type='commit' value='cll'></form></html>";
-			bsrContext.write(req.getBytes());	
+			BSRHttpServletResponse response = BSRHttpServletResponseParser.createResponse(200, null);
+			try {
+				response.getOutputStream().write("这是一篇非常长非常长的文章".getBytes("GBK"));
+				response.setContentType("text/html; charset=GBK");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			try {
+				bsrContext.write(BSRHttpServletResponseParser.transResponseToBytes(response));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}	
 		}else if(bsrEvents.equals(BSREvents.OP_CLOSE)){
 			System.out.println("发生远程客户端关闭事件");
 		}

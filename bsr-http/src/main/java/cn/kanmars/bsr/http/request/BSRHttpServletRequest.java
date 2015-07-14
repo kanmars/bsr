@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -29,6 +30,7 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 
 import cn.kanmars.bsr.http.context.BSRServletContext;
+import cn.kanmars.bsr.http.util.DateUtils;
 import cn.kanmars.bsr.http.util.StringUtils;
 
 /**
@@ -552,7 +554,12 @@ public class BSRHttpServletRequest  implements HttpServletRequest {
 	 * 用于将指定头信息的部分转换成方便转换为时间类型的长整数型，简化getHeaders
 	 */
 	public long getDateHeader(String name) {
-		return Long.parseLong(getHeader(name));
+		try {
+			return DateUtils.getDateFromGMTStr(getHeader(name)).getTime();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return 0L;
 	}
 
 	/**

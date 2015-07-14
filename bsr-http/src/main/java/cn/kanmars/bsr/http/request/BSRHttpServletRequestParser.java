@@ -4,9 +4,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.Cookie;
@@ -132,8 +135,7 @@ public class BSRHttpServletRequestParser{
 			}
 			String headerStr = new String(bytes,i,next_rn-i).trim();
 			if(headerStr.indexOf(":")>0){
-				String[] header_arrays = headerStr.split(":");
-				headers.put(header_arrays[0].trim(), header_arrays[1].trim());
+				headers.put(headerStr.substring(0,headerStr.indexOf(":")), headerStr.substring(headerStr.indexOf(":")+1).trim());
 			}
 			i = next_rn+2;
 		}
@@ -186,7 +188,7 @@ public class BSRHttpServletRequestParser{
 		bsrHttpServletRequest.setRequestURI(URLDecoder.decode(requestURI,bsrHttpServletRequest.getCharacterEncoding()));
 		String host = bsrHttpServletRequest.getHeader("Host");
 		if(host == null){
-			host = "localhost:1234";
+			host = "";
 		}
 		bsrHttpServletRequest.setRequestURL(bsrHttpServletRequest.getScheme()+"://"+ host +bsrHttpServletRequest.getRequestURI());
 		//解析queryString
@@ -237,7 +239,7 @@ public class BSRHttpServletRequestParser{
 		}else {
 			//此分支不可能出现
 		}
-		content.replaceAll("+", " ");//特殊字符处理
+		content = content.replaceAll("\\+", " ");//特殊字符处理
 		content = URLDecoder.decode(content,bsrHttpServletRequest.getCharacterEncoding());
 		bsrHttpServletRequest.setInputStream(new BSRServletInputStream(content));
 		//解析请求url中的param
@@ -267,4 +269,5 @@ public class BSRHttpServletRequestParser{
 		
 		return bsrHttpServletRequest;
 	}
+	
 }
