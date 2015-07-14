@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.DispatcherType;
@@ -30,7 +31,10 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 
 import cn.kanmars.bsr.http.context.BSRServletContext;
+import cn.kanmars.bsr.http.session.BSRHttpSession;
+import cn.kanmars.bsr.http.session.BSRHttpSessionHolder;
 import cn.kanmars.bsr.http.util.DateUtils;
+import cn.kanmars.bsr.http.util.IDCreator;
 import cn.kanmars.bsr.http.util.StringUtils;
 
 /**
@@ -749,6 +753,9 @@ public class BSRHttpServletRequest  implements HttpServletRequest {
 		String header_jessionid = getHeader("jessionid");
 		if(StringUtils.isNotEmpty(header_jessionid)){
 			return header_jessionid;
+		}else{
+			requestedSessionId = IDCreator.createId("BSR", 30);
+			getHeaders().put("jessionid", requestedSessionId);
 		}
 		return getHeader("jessionid");
 	}
@@ -788,8 +795,11 @@ public class BSRHttpServletRequest  implements HttpServletRequest {
 	 * //TODO 待开发
 	 */
 	public HttpSession getSession(boolean create) {
-		
-		return null;
+		BSRHttpSession session = BSRHttpSessionHolder.getBSRHttpSession(getRequestedSessionId());
+		if(create && session == null){
+			session = new BSRHttpSession();
+		}
+		return session;
 	}
 
 	public HttpSession getSession() {
