@@ -158,6 +158,8 @@ public class BSRHttpServletRequestParser{
 			}else{
 				bsrHttpServletRequest.setCharacterEncoding(default_characterencoding);
 			}
+		}else{
+			bsrHttpServletRequest.setCharacterEncoding(default_characterencoding);
 		}
 		//COOKIE解析
 		String cookies_str = bsrHttpServletRequest.getHeader("Cookie");
@@ -185,18 +187,17 @@ public class BSRHttpServletRequestParser{
 		
 		
 		//根据字符集解析URL
-		bsrHttpServletRequest.setRequestURI(URLDecoder.decode(requestURI,bsrHttpServletRequest.getCharacterEncoding()));
 		String host = bsrHttpServletRequest.getHeader("Host");
 		if(host == null){
 			host = "";
 		}
-		bsrHttpServletRequest.setRequestURL(bsrHttpServletRequest.getScheme()+"://"+ host +bsrHttpServletRequest.getRequestURI());
+		bsrHttpServletRequest.setRequestURL(bsrHttpServletRequest.getScheme()+"://"+ host +URLDecoder.decode(requestURI,bsrHttpServletRequest.getCharacterEncoding()));
 		//解析queryString
-		int last_ = bsrHttpServletRequest.getRequestURI().lastIndexOf("/");
+		int last_ = bsrHttpServletRequest.getRequestURL().lastIndexOf("/");
 		if(last_>=0){
-			int first_wen = bsrHttpServletRequest.getRequestURI().indexOf("?",last_);
+			int first_wen = bsrHttpServletRequest.getRequestURL().indexOf("?",last_);
 			if(first_wen>=0){
-				bsrHttpServletRequest.setQueryString(bsrHttpServletRequest.getRequestURI().substring(first_wen+1));
+				bsrHttpServletRequest.setQueryString(bsrHttpServletRequest.getRequestURL().substring(first_wen+1));
 			}else{
 				bsrHttpServletRequest.setQueryString("");
 			}
@@ -237,7 +238,8 @@ public class BSRHttpServletRequestParser{
 			}
 			content = new String(request_bao.toByteArray(),bsrHttpServletRequest.getCharacterEncoding());
 		}else {
-			//此分支不可能出现
+			//如果确实没有报文体
+			content = "";
 		}
 		content = content.replaceAll("\\+", " ");//特殊字符处理
 		content = URLDecoder.decode(content,bsrHttpServletRequest.getCharacterEncoding());
@@ -249,7 +251,7 @@ public class BSRHttpServletRequestParser{
 			for(String query_name_value : query_name_value_array){
 				if(query_name_value.indexOf("=")>0){
 					String name = query_name_value.split("=")[0];
-					String value = query_name_value.split("=")[0];
+					String value = query_name_value.split("=")[1];
 					bsrHttpServletRequest.putParameter(name, value);
 				}
 				

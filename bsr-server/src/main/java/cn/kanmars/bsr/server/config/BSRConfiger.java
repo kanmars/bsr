@@ -58,6 +58,8 @@ public class BSRConfiger {
 		configs.put(BSRConstants.BYTEBUFFER_SIZE, "1024");
 		/**缓冲区池中缓冲对象每个的大小*/
 		configs.put(BSRConstants.LOG_FILE, "BSR.log");
+		/**静态资源的ROOT路径*/
+		configs.put(BSRConstants.ROOT_DIR, "E:/");
 	}
 	
 	/**

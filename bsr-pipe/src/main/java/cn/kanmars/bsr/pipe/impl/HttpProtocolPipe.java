@@ -31,19 +31,19 @@ public class HttpProtocolPipe extends BSRPipe{
 					bsrHttpServletRequest.setRemoteAddr(bsrContext.getSocketChannel().getRemoteAddress().toString());
 					bsrHttpServletRequest.setRemoteHost(((InetSocketAddress)bsrContext.getSocketChannel().getRemoteAddress()).getHostString());
 					/**常用的报文*/
-					BSRHttpServletResponse response = BSRHttpServletResponseParser.createResponse(200,"OK", null);
+					BSRHttpServletResponse bsrHttpServletResponse = BSRHttpServletResponseParser.createResponse(200,"OK", null);
 					try {
-						response.getOutputStream().write("这是一篇非常长非常长的文章".getBytes("GBK"));
-						response.setContentType("text/html; charset=GBK");
+						bsrHttpServletResponse.getOutputStream().write("这是一篇非常长非常长的文章".getBytes("GBK"));
+						bsrHttpServletResponse.setContentType("text/html; charset=GBK");
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
-					/**重定向报文*/
-					BSRHttpServletResponse response2 = BSRHttpServletResponseParser.createSendRedirectResponse(301, "Moved Permanently", null, "http://www.baidu.com");
+//					/**重定向报文*/
+//					BSRHttpServletResponse response2 = BSRHttpServletResponseParser.createSendRedirectResponse(301, "Moved Permanently", null, "http://www.baidu.com");
 
 					/**根据request中的末尾，设置contentType*/			
 					String reqURI = bsrHttpServletRequest.getRequestURI();//带参数的
-					String content_Type = response.getContentType();
+					String content_Type = bsrHttpServletResponse.getContentType();
 					if(StringUtils.isEmpty(content_Type)){
 						content_Type = "text/html";
 					}
@@ -62,11 +62,14 @@ public class HttpProtocolPipe extends BSRPipe{
 							content_Type = MIMEUtils.getMIME(fileSuffix);
 						}
 					}
-					response.setContentType(content_Type);
-					
+					bsrHttpServletResponse.setContentType(content_Type);
+					/**
+					 * 在诸多请求都准备好之后，执行下一步管道
+					 */
+					doNext(bsrEvents,bsrHttpServletRequest,bsrHttpServletResponse);
 					/**报文发送*/
 					try {
-						bsrContext.write(BSRHttpServletResponseParser.transResponseToBytes(response));
+						bsrContext.write(BSRHttpServletResponseParser.transResponseToBytes(bsrHttpServletResponse));
 					} catch (Exception e) {
 						e.printStackTrace();
 					}	
@@ -80,6 +83,6 @@ public class HttpProtocolPipe extends BSRPipe{
 			System.out.println("发生远程客户端关闭事件");
 		}
 		
-		doNext(bsrEvents,objs);
+		
 	}
 }
