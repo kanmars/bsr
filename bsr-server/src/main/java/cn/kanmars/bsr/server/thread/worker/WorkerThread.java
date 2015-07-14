@@ -72,14 +72,14 @@ public class WorkerThread extends Thread {
 								bsrContext.getBao().write(tmp,0,tmp.length);
 							}
 							//本次读取完毕，开始管道线处理
-							bsrPipeProcessor.execute(bsrContext, BSREvents.OP_READ);
+							bsrPipeProcessor.execute(BSREvents.OP_READ,bsrContext);
 						}else if(length ==0){
 							//如果本次事件触发，内层循环中长度为0，则忽略本次事件
 							break;
 						}else if(length == -1){
 							//如果读取到-1则为已关闭状态
 							Logger.debug("socket关闭");
-							bsrPipeProcessor.execute(bsrContext, BSREvents.OP_CLOSE);
+							bsrPipeProcessor.execute(BSREvents.OP_CLOSE,bsrContext);
 							BSRContextRegister.removeBSRContext(socketChannel);
 						}else{
 							Logger.debug("通讯异常");
@@ -90,7 +90,7 @@ public class WorkerThread extends Thread {
 					
 				}catch(ClosedChannelException e){
 					Logger.debug("socket关闭");
-					bsrPipeProcessor.execute(bsrContext, BSREvents.OP_CLOSE);
+					bsrPipeProcessor.execute(BSREvents.OP_CLOSE,bsrContext);
 					BSRContextRegister.removeBSRContext(socketChannel);
 				}
 			} catch (IOException e) {

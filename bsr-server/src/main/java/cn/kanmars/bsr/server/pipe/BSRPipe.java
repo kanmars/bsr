@@ -13,16 +13,16 @@ public abstract class BSRPipe {
 	 * @param obj
 	 * @param bsrEvents
 	 */
-	public abstract void execute(Object obj,String bsrEvents);
+	public abstract void execute(String bsrEvents,Object...obj);
 	
 	/**
 	 * 执行下一个方法
 	 * @param obj
 	 * @param bsrEvents
 	 */
-	public void doNext(Object obj,String bsrEvents){
+	public void doNext(String bsrEvents,Object...obj){
 		if(next != null){
-			next.execute(obj, bsrEvents);
+			next.execute(bsrEvents,obj);
 		}
 	}
 

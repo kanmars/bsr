@@ -18,7 +18,7 @@ import cn.kanmars.bsr.server.thread.boss.BossThread;
 import cn.kanmars.bsr.server.thread.worker.WorkerThread;
 
 /**
- * BSR服务器的启动器
+ * BSR服务器的启动器，一个简单的echo 示例
  * @author baolong
  *
  */

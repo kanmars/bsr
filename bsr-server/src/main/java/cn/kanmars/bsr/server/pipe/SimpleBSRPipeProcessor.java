@@ -20,14 +20,14 @@ public class SimpleBSRPipeProcessor extends AbstracePipelineProcessor {
 
 	/**
 	 * 管道线处理
-	 * @param bsrContext	BSR上下文
 	 * @param bsrEvents		BSR事件处理，参见BSREvent.OP_READ,BSREvent.OP_WRITE,BSREvent.OP_CLOSE
+	 * @param bsrContext	BSR上下文
 	 */
-	public void execute(Object bsrContext,String bsrEvents){
+	public void execute(String bsrEvents,Object ... objs){
 		//获取第一个管道
 		BSRPipe firstPipe = bsrPipeLine.get(0);
 		//从第一个管道开始向下执行
-		firstPipe.execute(bsrContext, bsrEvents);
+		firstPipe.execute(bsrEvents,objs);
 	}
 	
 }

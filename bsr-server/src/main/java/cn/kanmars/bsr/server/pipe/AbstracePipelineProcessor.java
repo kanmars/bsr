@@ -57,5 +57,5 @@ public abstract class AbstracePipelineProcessor {
 		return bsrPipeLine.get(index);
 	}
 	
-	public abstract void execute(Object bsrContext,String bsrEvents);
+	public abstract void execute(String bsrEvents,Object ... objs);
 }

@@ -9,8 +9,8 @@ import cn.kanmars.bsr.server.cache.BSRPoolsHolder;
 import cn.kanmars.bsr.server.config.BSRConfiger;
 import cn.kanmars.bsr.server.constant.BSRConstants;
 import cn.kanmars.bsr.server.pipe.BSRPipe;
-import cn.kanmars.bsr.pipe.HttpPipe;
-import cn.kanmars.bsr.pipelineprocessor.BSRPipelineProcessor;
+import cn.kanmars.bsr.pipe.BSRPipelineProcessor;
+import cn.kanmars.bsr.pipe.impl.HttpProtocolPipe;
 import cn.kanmars.bsr.server.socket.channel.ServerSocketChannelHolder;
 import cn.kanmars.bsr.server.socket.selector.SelectorHolder;
 import cn.kanmars.bsr.server.thread.back.BackGroundThread;
@@ -104,7 +104,7 @@ public static void main(String[] args) throws IOException, InterruptedException 
 	public static void runWorkerThread() throws NumberFormatException, InterruptedException{
 		/**准备管道线*/
 		List<BSRPipe> bsrPipeLine = new ArrayList<BSRPipe>();
-		bsrPipeLine.add(new HttpPipe());
+		bsrPipeLine.add(new HttpProtocolPipe());
 		/**生成管道线处理器*/
 		BSRPipelineProcessor bsrPipeProcessor = new BSRPipelineProcessor(bsrPipeLine);
 		/**启动Worker线程*/

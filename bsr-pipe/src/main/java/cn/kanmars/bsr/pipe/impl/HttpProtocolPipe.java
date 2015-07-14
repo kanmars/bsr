@@ -1,4 +1,4 @@
-package cn.kanmars.bsr.pipe;
+package cn.kanmars.bsr.pipe.impl;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -14,14 +14,14 @@ import cn.kanmars.bsr.server.event.BSREvents;
 import cn.kanmars.bsr.server.pipe.BSRPipe;
 
 /**
- * Http管道
+ * Http协议解析管道,
  * @author baolong
  *
  */
-public class HttpPipe extends BSRPipe{
-	public void execute(Object bsrContext_, String bsrEvents) {
+public class HttpProtocolPipe extends BSRPipe{
+	public void execute(String bsrEvents,Object ... objs) {
 		if(bsrEvents.equals(BSREvents.OP_READ)){
-			BSRContext bsrContext = (BSRContext)bsrContext_;
+			BSRContext bsrContext = (BSRContext)objs[0];
 			String req = new String(bsrContext.getContent());
 			System.out.println("客户端请求为["+req+"]");
 			
@@ -80,6 +80,6 @@ public class HttpPipe extends BSRPipe{
 			System.out.println("发生远程客户端关闭事件");
 		}
 		
-		doNext(bsrContext_,bsrEvents);
+		doNext(bsrEvents,objs);
 	}
 }
