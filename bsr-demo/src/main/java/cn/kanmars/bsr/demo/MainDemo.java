@@ -1,4 +1,4 @@
-package cn.kanmars.bsr.server.boot;
+package cn.kanmars.bsr.demo;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,21 +9,17 @@ import cn.kanmars.bsr.server.cache.BSRPoolsHolder;
 import cn.kanmars.bsr.server.config.BSRConfiger;
 import cn.kanmars.bsr.server.constant.BSRConstants;
 import cn.kanmars.bsr.server.pipe.BSRPipe;
-import cn.kanmars.bsr.server.pipe.SimpleBSRPipeProcessor;
-import cn.kanmars.bsr.server.pipe.impl.EchoPipeLine;
+import cn.kanmars.bsr.pipe.HttpPipe;
+import cn.kanmars.bsr.pipelineprocessor.BSRPipelineProcessor;
 import cn.kanmars.bsr.server.socket.channel.ServerSocketChannelHolder;
 import cn.kanmars.bsr.server.socket.selector.SelectorHolder;
 import cn.kanmars.bsr.server.thread.back.BackGroundThread;
 import cn.kanmars.bsr.server.thread.boss.BossThread;
 import cn.kanmars.bsr.server.thread.worker.WorkerThread;
 
-/**
- * BSR服务器的启动器
- * @author baolong
- *
- */
-public class BootStrap {
-	public static void main(String[] args) throws IOException, InterruptedException {
+public class MainDemo {
+
+public static void main(String[] args) throws IOException, InterruptedException {
 		
 		/**加载配置文件*/
 		initBSRConfiger(args);
@@ -108,9 +104,9 @@ public class BootStrap {
 	public static void runWorkerThread() throws NumberFormatException, InterruptedException{
 		/**准备管道线*/
 		List<BSRPipe> bsrPipeLine = new ArrayList<BSRPipe>();
-		bsrPipeLine.add(new EchoPipeLine());
+		bsrPipeLine.add(new HttpPipe());
 		/**生成管道线处理器*/
-		SimpleBSRPipeProcessor bsrPipeProcessor = new SimpleBSRPipeProcessor(bsrPipeLine);
+		BSRPipelineProcessor bsrPipeProcessor = new BSRPipelineProcessor(bsrPipeLine);
 		/**启动Worker线程*/
 		WorkerThread wt = new WorkerThread();
 		wt.setBsrPipeProcessor(bsrPipeProcessor);
@@ -127,4 +123,5 @@ public class BootStrap {
 		Executors.newFixedThreadPool(Integer.parseInt(BSRConfiger.getConfig(BSRConstants.BACK_THREAD_NUMBER))).execute(bgt);
 		Thread.sleep(Long.parseLong(BSRConfiger.getConfig(BSRConstants.THREAD_SKIPTIME)));
 	}
+
 }

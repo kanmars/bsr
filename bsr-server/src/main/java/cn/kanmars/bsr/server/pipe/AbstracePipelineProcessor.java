@@ -3,35 +3,9 @@ package cn.kanmars.bsr.server.pipe;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.kanmars.bsr.server.context.BSRContext;
-
-/**
- * 管道线驱动
- * @author baolong
- *
- */
-public class BSRPipeProcessor {
+public abstract class AbstracePipelineProcessor {
 	
-	public BSRPipeProcessor(List<BSRPipe> bsrPipeLine) {
-		//对管道线进行赋值
-		this.bsrPipeLine = bsrPipeLine;
-		//创建管道线
-		buildPipeLines();
-	}
-
 	public List<BSRPipe> bsrPipeLine = new ArrayList<BSRPipe>();
-	
-	/**
-	 * 管道线处理
-	 * @param bsrContext	BSR上下文
-	 * @param bsrEvents		BSR事件处理，参见BSREvent.OP_READ,BSREvent.OP_WRITE,BSREvent.OP_CLOSE
-	 */
-	public void execute(BSRContext bsrContext,String bsrEvents){
-		//获取第一个管道
-		BSRPipe firstPipe = bsrPipeLine.get(0);
-		//从第一个管道开始向下执行
-		firstPipe.execute(bsrContext, bsrEvents);
-	}
 	
 	/**
 	 * 创建管道线，将BSRPipeLine中的管道链接起来
@@ -82,4 +56,6 @@ public class BSRPipeProcessor {
 		//返回指定的管道线
 		return bsrPipeLine.get(index);
 	}
+	
+	public abstract void execute(Object bsrContext,String bsrEvents);
 }

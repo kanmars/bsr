@@ -8,9 +8,9 @@
     <version>0.0.1</version>
   </parent>
   <groupId>cn.kanmars</groupId>
-  <artifactId>bsr-server</artifactId>
+  <artifactId>bsr-demo</artifactId>
   <version>0.0.1</version>
-  <name>bsr-server</name>
+  <name>bsr-demo</name>
   <url>http://maven.apache.org</url>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -21,6 +21,21 @@
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>cn.kanmars</groupId>
+      <artifactId>bsr-server</artifactId>
+      <version>0.0.1</version>
+    </dependency>
+    <dependency>
+      <groupId>cn.kanmars</groupId>
+      <artifactId>bsr-pipe</artifactId>
+      <version>0.0.1</version>
+    </dependency>
+    <dependency>
+      <groupId>cn.kanmars</groupId>
+      <artifactId>bsr-pipe</artifactId>
+      <version>0.0.1</version>
     </dependency>
   </dependencies>
 </project>

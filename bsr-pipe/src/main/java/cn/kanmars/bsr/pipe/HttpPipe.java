@@ -1,4 +1,4 @@
-package cn.kanmars.bsr.server.pipe.impl;
+package cn.kanmars.bsr.pipe;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -13,9 +13,13 @@ import cn.kanmars.bsr.server.context.BSRContext;
 import cn.kanmars.bsr.server.event.BSREvents;
 import cn.kanmars.bsr.server.pipe.BSRPipe;
 
-public class HttpPipeLine extends BSRPipe{
-public void execute(Object bsrContext_, String bsrEvents) {
-		
+/**
+ * Http管道
+ * @author baolong
+ *
+ */
+public class HttpPipe extends BSRPipe{
+	public void execute(Object bsrContext_, String bsrEvents) {
 		if(bsrEvents.equals(BSREvents.OP_READ)){
 			BSRContext bsrContext = (BSRContext)bsrContext_;
 			String req = new String(bsrContext.getContent());

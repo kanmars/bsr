@@ -11,7 +11,8 @@ import cn.kanmars.bsr.server.context.BSRContext;
 import cn.kanmars.bsr.server.context.BSRContextRegister;
 import cn.kanmars.bsr.server.event.BSREvents;
 import cn.kanmars.bsr.server.log.Logger;
-import cn.kanmars.bsr.server.pipe.BSRPipeProcessor;
+import cn.kanmars.bsr.server.pipe.AbstracePipelineProcessor;
+import cn.kanmars.bsr.server.pipe.SimpleBSRPipeProcessor;
 
 /**
  * 工人线程
@@ -20,22 +21,22 @@ import cn.kanmars.bsr.server.pipe.BSRPipeProcessor;
  */
 public class WorkerThread extends Thread {
 
-	private BSRPipeProcessor bsrPipeProcessor;
+	private AbstracePipelineProcessor bsrPipeProcessor;
 	
 	public WorkerThread() {
 		super();
 	}
 
-	public WorkerThread(BSRPipeProcessor bsrPipeProcessor) {
+	public WorkerThread(SimpleBSRPipeProcessor bsrPipeProcessor) {
 		super();
 		this.bsrPipeProcessor = bsrPipeProcessor;
 	}
 	
-	public BSRPipeProcessor getBsrPipeProcessor() {
+	public AbstracePipelineProcessor getBsrPipeProcessor() {
 		return bsrPipeProcessor;
 	}
 
-	public void setBsrPipeProcessor(BSRPipeProcessor bsrPipeProcessor) {
+	public void setBsrPipeProcessor(AbstracePipelineProcessor bsrPipeProcessor) {
 		this.bsrPipeProcessor = bsrPipeProcessor;
 	}
 
