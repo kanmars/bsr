@@ -3,6 +3,8 @@ package cn.kanmars.bsr.pipe.impl;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
+import javax.servlet.http.Cookie;
+
 import cn.kanmars.bsr.http.request.BSRHttpServletRequest;
 import cn.kanmars.bsr.http.request.BSRHttpServletRequestParser;
 import cn.kanmars.bsr.http.response.BSRHttpServletResponse;
@@ -47,6 +49,16 @@ public class HttpProtocolPipe extends BSRPipe{
 					/**根据request中的末尾，设置contentType*/			
 					String content_Type = getContentTypeByFileSuffix(bsrHttpServletRequest,bsrHttpServletResponse);
 					bsrHttpServletResponse.setContentType(content_Type);
+					
+					Cookie c1 = new Cookie("kan_1", "a");
+					Cookie c2 = new Cookie("kan_2", "b");
+					c1.setMaxAge(1000);
+					//c2.setDomain("kanmars.cn");
+					c1.setPath("/");
+					c2.setPath("/");
+					
+					bsrHttpServletResponse.addCookie(c1);
+					bsrHttpServletResponse.addCookie(c2);
 					/**
 					 * 在诸多请求都准备好之后，执行下一步管道
 					 */
@@ -54,7 +66,8 @@ public class HttpProtocolPipe extends BSRPipe{
 					/**报文发送*/
 					try {
 						bsrContext.write(BSRHttpServletResponseParser.transResponseToBytes(bsrHttpServletResponse));
-					} catch (Exception e) {
+					} catch (Throwable e) {
+						Logger.debug("协议处理层发现通道已关闭");
 						e.printStackTrace();
 					}	
 				

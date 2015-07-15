@@ -2,8 +2,11 @@ package cn.kanmars.bsr.http.response;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.servlet.http.Cookie;
 
 import cn.kanmars.bsr.http.stream.BSRServletOutputStream;
 import cn.kanmars.bsr.http.util.DateUtils;
@@ -75,27 +78,114 @@ public class BSRHttpServletResponseParser {
 		if(StringUtils.isNotEmpty(response.getContentType())){
 			response.setHeader("Content-Type", response.getContentType());
 		}
+		response.setHeader("Date", DateUtils.getGMTStr());
 		
 		byte[] contentBytes = ((BSRServletOutputStream)response.getOutputStream()).getContentBytes();
 		//设置报文长度
-		response.setContentLength(contentBytes.length);
-		
-		if(response.getContentLength() >=0){
-			response.setHeader("Content-Length", ""+response.getContentLength());
+		int chunkLength = 5120;
+		if(contentBytes.length<=chunkLength){
+			//报文长度小于某个长度，则直接设置长度
+			response.setContentLength(contentBytes.length);
+			if(response.getContentLength() >=0){
+				response.setHeader("Content-Length", ""+response.getContentLength());
+			}
+			
+			Map<String, String> headers = response.getHeaders();
+			
+			for(Entry<String, String> e : headers.entrySet()){
+				bao.write((e.getKey()+": "+e.getValue()+"\r\n").getBytes());
+			}
+			//增加cookie信息
+			addCookiesInfo(response,bao);
+			//头部结束
+			bao.write("\r\n".getBytes());
+			
+			bao.write(contentBytes);
+			bao.write(("\r\n").getBytes());
+		}else{
+			//chunked报文组装
+			Map<String, String> headers = response.getHeaders();
+			headers.put("Transfer-Encoding", "chunked");
+			
+			
+			for(Entry<String, String> e : headers.entrySet()){
+				bao.write((e.getKey()+": "+e.getValue()+"\r\n").getBytes());
+			}
+			//增加cookie信息
+			addCookiesInfo(response,bao);
+			//头部结束
+			bao.write("\r\n".getBytes());
+			for(int i=0;i<contentBytes.length;i+=chunkLength){
+				if(i!=0){
+					bao.write(("\r\n").getBytes());
+				}
+				if(i+chunkLength<contentBytes.length){
+					//如果长度够一个chunk
+					bao.write((""+transD216X(chunkLength)+"\r\n").getBytes());
+					bao.write(contentBytes,i,chunkLength);
+					bao.write(("\r\n").getBytes());
+				}else{
+					//如果长度不够一个chunk
+					int length = contentBytes.length - i;
+					bao.write((""+transD216X(length)+"\r\n").getBytes());
+					bao.write(contentBytes,i,length);
+					bao.write(("\r\n").getBytes());
+				}
+			}
+			bao.write(("\r\n0\r\n\r\n").getBytes());
 		}
-		response.setHeader("Date", DateUtils.getGMTStr());
-		
-		Map<String, String> headers = response.getHeaders();
-		
-		for(Entry<String, String> e : headers.entrySet()){
-			bao.write((e.getKey()+": "+e.getValue()+"\r\n").getBytes());
-		}
-		//头部结束
-		bao.write("\r\n".getBytes());
-		
-		bao.write(contentBytes);
 		
 		return bao.toByteArray();
+	}
+	
+	public static String transD216X(int length){
+		return Integer.toHexString(length);
+	}
+	
+	/**
+	 * 增加一个cookie信息
+	 * @param response
+	 * @param bao
+	 */
+	public static void addCookiesInfo(BSRHttpServletResponse response,ByteArrayOutputStream bao ){
+		
+//      name.equalsIgnoreCase("Path") ||		
+//         name.equalsIgnoreCase("Domain") ||
+//         name.equalsIgnoreCase("Expires") || // (old cookies)已被Max-Age取代
+		
+//		 name.equalsIgnoreCase("Comment") || // rfc2019
+//         name.equalsIgnoreCase("Max-Age") || // rfc2019
+
+//         name.equalsIgnoreCase("Secure") ||
+//         name.equalsIgnoreCase("Version") ||
+		try {
+			
+			List<Cookie> list = response.getCookies();
+			if(list.size()>0){
+				for(int i=0;i<list.size();i++){
+					Cookie cookie = list.get(i);
+					bao.write(("Set-Cookie: ").getBytes());
+					if(StringUtils.isNotEmpty(cookie.getName())){
+						bao.write((cookie.getName()+"="+cookie.getValue()+"; ").getBytes());
+					}
+					if(StringUtils.isNotEmpty(cookie.getPath())){
+						bao.write(("Path="+cookie.getValue()+"; ").getBytes());
+					}else{
+						bao.write(("Path=/; ").getBytes());
+					}
+					if(StringUtils.isNotEmpty(cookie.getDomain())){
+						bao.write(("Domain="+cookie.getValue()+"; ").getBytes());
+					}
+					bao.write(("Max-Age="+cookie.getMaxAge()+"; ").getBytes());
+					if(cookie.getSecure()){
+						bao.write(("SECURE; ").getBytes());
+					}
+					bao.write(("\r\n").getBytes());
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	

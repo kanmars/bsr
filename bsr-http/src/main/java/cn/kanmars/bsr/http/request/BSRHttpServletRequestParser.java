@@ -117,11 +117,15 @@ public class BSRHttpServletRequestParser{
 		String[] reqLine_spil = reqLine.split(" ");
 		String method = reqLine_spil[0];
 		String requestURI = reqLine_spil[1];
-		String protocol = reqLine_spil[2];
 		bsrHttpServletRequest.setMethod(method);
 		bsrHttpServletRequest.setRequestURI(requestURI);
-		bsrHttpServletRequest.setProtocol(protocol);
 		bsrHttpServletRequest.setScheme("http");
+		if(reqLine_spil.length==3){
+			String protocol = reqLine_spil[2];
+			bsrHttpServletRequest.setProtocol(protocol);
+		}else{
+			bsrHttpServletRequest.setProtocol("HTTP/1.1");
+		}
 		
 		//解析头部信息
 		int endofhead = ByteUtils.byteIndexOf(bytes, new byte[]{'\r','\n','\r','\n'}, 0);
@@ -189,7 +193,7 @@ public class BSRHttpServletRequestParser{
 		//根据字符集解析URL
 		String host = bsrHttpServletRequest.getHeader("Host");
 		if(host == null){
-			host = "";
+			host = "localhost:1234";
 		}
 		bsrHttpServletRequest.setRequestURL(bsrHttpServletRequest.getScheme()+"://"+ host +URLDecoder.decode(requestURI,bsrHttpServletRequest.getCharacterEncoding()));
 		//解析queryString

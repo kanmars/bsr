@@ -121,9 +121,15 @@ public class BSRHttpServletResponse implements HttpServletResponse {
 	public void addCookie(Cookie cookie) {
 		cookies.add(cookie);
 	}
+	
+	public List<Cookie> getCookies(){
+		return cookies;
+	}
 
 	public boolean containsHeader(String name) {
-		
+		if(getHeader(name)!=null){
+			return true;
+		}
 		return false;
 	}
 

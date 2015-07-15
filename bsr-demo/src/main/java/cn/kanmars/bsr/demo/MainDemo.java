@@ -20,7 +20,12 @@ import cn.kanmars.bsr.server.thread.boss.BossThread;
 import cn.kanmars.bsr.server.thread.worker.WorkerThread;
 
 public class MainDemo {
-
+/**
+ * http://ifeve.com/socket-channel/
+ * @param args
+ * @throws IOException
+ * @throws InterruptedException
+ */
 public static void main(String[] args) throws IOException, InterruptedException {
 		
 		/**加载配置文件*/

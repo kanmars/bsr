@@ -10,6 +10,7 @@ import cn.kanmars.bsr.server.cache.BSRPoolsHolder;
 import cn.kanmars.bsr.server.cache.bytebufferpool.BSRByteBufferPool;
 import cn.kanmars.bsr.server.config.BSRConfiger;
 import cn.kanmars.bsr.server.constant.BSRConstants;
+import cn.kanmars.bsr.server.log.Logger;
 
 /**
  * BSR处理上下文
@@ -87,10 +88,12 @@ public class BSRContext implements Comparable<BSRContext> {
 					}
 					byteBuffer.put(bytes,i,length);
 					byteBuffer.flip();
-					socketChannel.write(byteBuffer);
+					while(byteBuffer.hasRemaining()){
+						socketChannel.write(byteBuffer);
+					}
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
+				Logger.error("客户端已经关闭，无法写出", e);
 			}finally{
 				//将byteBuffer放回缓冲池
 				BSRPoolsHolder.getBSRByteBufferPool().releaseT(byteBuffer);

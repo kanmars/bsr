@@ -1,5 +1,10 @@
 package cn.kanmars.bsr.server.log;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
+
 import cn.kanmars.bsr.server.config.BSRConfiger;
 import cn.kanmars.bsr.server.constant.BSRConstants;
 
@@ -15,16 +20,27 @@ public class Logger {
 	}
 	
 	public static void info(String msg){
-		System.out.println(msg);
+		println(msg);
 	}
 	public static void debug(String msg){
-		
-		//System.out.println(msg);
+		println(msg);
 	}
 	public static void error(String msg,Exception e){
-		System.out.println(msg);
+		println(msg);
 		if(e!=null){
 			e.printStackTrace();
 		}
+	}
+	
+	public static void println(String msg){
+		System.out.println(msg);
+		try {
+			PrintWriter pw = new PrintWriter(new FileOutputStream(new File("E:/1log.txt"),true));
+			pw.println(msg);
+			pw.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		
 	}
 }

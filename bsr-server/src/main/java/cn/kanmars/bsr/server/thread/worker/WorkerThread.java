@@ -6,7 +6,6 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SocketChannel;
 
 import cn.kanmars.bsr.server.cache.BSRPoolsHolder;
-import cn.kanmars.bsr.server.cache.bytebufferpool.BSRByteBufferPool;
 import cn.kanmars.bsr.server.context.BSRContext;
 import cn.kanmars.bsr.server.context.BSRContextRegister;
 import cn.kanmars.bsr.server.event.BSREvents;
@@ -78,9 +77,11 @@ public class WorkerThread extends Thread {
 							break;
 						}else if(length == -1){
 							//如果读取到-1则为已关闭状态
-							Logger.debug("socket关闭");
-							bsrPipeProcessor.execute(BSREvents.OP_CLOSE,bsrContext);
-							BSRContextRegister.removeBSRContext(socketChannel);
+							if(!socketChannel.isConnected()){
+								Logger.debug("read-1.socket关闭");
+								bsrPipeProcessor.execute(BSREvents.OP_CLOSE,bsrContext);
+								BSRContextRegister.removeBSRContext(socketChannel);
+							}
 						}else{
 							Logger.debug("通讯异常");
 						}
@@ -90,11 +91,15 @@ public class WorkerThread extends Thread {
 					BSRPoolsHolder.getBSRByteBufferPool().releaseT(byteBuffer);
 					
 				}catch(ClosedChannelException e){
-					Logger.debug("socket关闭");
+					Logger.debug("ClosedChannelException.socket关闭");
+					bsrPipeProcessor.execute(BSREvents.OP_CLOSE,bsrContext);
+					BSRContextRegister.removeBSRContext(socketChannel);
+				}catch(Exception e){
+					Logger.debug("发生其他异常.socket关闭");
 					bsrPipeProcessor.execute(BSREvents.OP_CLOSE,bsrContext);
 					BSRContextRegister.removeBSRContext(socketChannel);
 				}
-			} catch (IOException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
