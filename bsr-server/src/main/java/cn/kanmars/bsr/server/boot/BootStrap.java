@@ -8,6 +8,7 @@ import java.util.concurrent.Executors;
 import cn.kanmars.bsr.server.cache.BSRPoolsHolder;
 import cn.kanmars.bsr.server.config.BSRConfiger;
 import cn.kanmars.bsr.server.constant.BSRConstants;
+import cn.kanmars.bsr.server.jmx.BSRJMXAgent;
 import cn.kanmars.bsr.server.pipe.BSRPipe;
 import cn.kanmars.bsr.server.pipe.SimpleBSRPipeProcessor;
 import cn.kanmars.bsr.server.pipe.impl.EchoPipeLine;
@@ -23,7 +24,7 @@ import cn.kanmars.bsr.server.thread.worker.WorkerThread;
  *
  */
 public class BootStrap {
-	public static void main(String[] args) throws IOException, InterruptedException {
+	public static void main(String[] args) throws Exception {
 		
 		/**加载配置文件*/
 		initBSRConfiger(args);
@@ -62,10 +63,13 @@ public class BootStrap {
 	
 	/**
 	 * BSRServer进行初始化
+	 * @throws Exception 
 	 */
-	public static void initBSRServer(){
+	public static void initBSRServer() throws Exception{
 		/**对缓冲池进行初始化*/
 		BSRPoolsHolder.initBSRByteBufferPool();
+		/**对JMX监控服务进行初始化*/
+		BSRJMXAgent.initBSRJMXAgent();
 	}
 	
 	/**

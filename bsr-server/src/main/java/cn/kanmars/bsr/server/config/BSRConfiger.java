@@ -36,6 +36,8 @@ public class BSRConfiger {
 		configs.put(BSRConstants.BIND_IP, "0.0.0.0");
 		/**绑定端口*/
 		configs.put(BSRConstants.BIND_PORT, "1234");
+		/**JMX端口*/
+		configs.put(BSRConstants.JMX_PORT, "1235");
 		/**操作的超时时间*/
 		configs.put(BSRConstants.TIMEOUT, "60000");
 		/**单个链接的最大超时时间*/
@@ -59,7 +61,8 @@ public class BSRConfiger {
 		/**缓冲区池中缓冲对象每个的大小*/
 		configs.put(BSRConstants.LOG_FILE, "BSR.log");
 		/**静态资源的ROOT路径*/
-		configs.put(BSRConstants.ROOT_DIR, "E:/kanmars.github.com/_site/");
+		configs.put(BSRConstants.ROOT_DIR, "~/");
+		
 	}
 	
 	/**

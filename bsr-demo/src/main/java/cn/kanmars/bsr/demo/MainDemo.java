@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import cn.kanmars.bsr.server.cache.BSRPoolsHolder;
 import cn.kanmars.bsr.server.config.BSRConfiger;
 import cn.kanmars.bsr.server.constant.BSRConstants;
+import cn.kanmars.bsr.server.jmx.BSRJMXAgent;
 import cn.kanmars.bsr.server.pipe.BSRPipe;
 import cn.kanmars.bsr.pipe.BSRPipelineProcessor;
 import cn.kanmars.bsr.pipe.impl.HttpProtocolPipe;
@@ -23,10 +24,9 @@ public class MainDemo {
 /**
  * http://ifeve.com/socket-channel/
  * @param args
- * @throws IOException
- * @throws InterruptedException
+ * @throws Exception 
  */
-public static void main(String[] args) throws IOException, InterruptedException {
+public static void main(String[] args) throws Exception {
 		
 		/**加载配置文件*/
 		initBSRConfiger(args);
@@ -65,10 +65,13 @@ public static void main(String[] args) throws IOException, InterruptedException 
 	
 	/**
 	 * BSRServer进行初始化
+	 * @throws Exception 
 	 */
-	public static void initBSRServer(){
+	public static void initBSRServer() throws Exception{
 		/**对缓冲池进行初始化*/
 		BSRPoolsHolder.initBSRByteBufferPool();
+		/**对JMX监控服务进行初始化*/
+		BSRJMXAgent.initBSRJMXAgent();
 	}
 	
 	/**

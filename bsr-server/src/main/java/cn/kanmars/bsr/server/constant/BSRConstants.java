@@ -3,6 +3,7 @@ package cn.kanmars.bsr.server.constant;
 public class BSRConstants {
 	public static final String BIND_IP = "BIND_IP";
 	public static final String BIND_PORT = "BIND_PORT";
+	public static final String JMX_PORT = "JMX_PORT";
 	public static final String TIMEOUT = "TIMEOUT";
 	public static final String MAXCONNTIME = "MAXCONNTIME";
 	public static final String BACKLOG = "BACKLOG";
