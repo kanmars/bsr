@@ -5,11 +5,11 @@
   <parent>
     <groupId>cn.kanmars</groupId>
     <artifactId>bsr</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
   </parent>
   <groupId>cn.kanmars</groupId>
   <artifactId>bsr-server</artifactId>
-  <version>0.0.1</version>
+  <version>0.0.2</version>
   <name>bsr-server</name>
   <url>http://maven.apache.org</url>
   <properties>
