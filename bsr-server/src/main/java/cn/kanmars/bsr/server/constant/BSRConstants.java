@@ -16,4 +16,7 @@ public class BSRConstants {
 	public static final String BYTEBUFFER_SIZE = "BYTEBUFFER_SIZE";
 	public static final String LOG_FILE = "LOG_FILE";
 	public static final String ROOT_DIR = "ROOT_DIR";
+	
+	public static final String BSRContext_READ_FLG="READ";
+	public static final String BSRContext_WRITE_FLG="WRITE";
 }

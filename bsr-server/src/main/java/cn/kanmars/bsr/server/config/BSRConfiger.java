@@ -43,9 +43,9 @@ public class BSRConfiger {
 		/**单个链接的最大超时时间*/
 		configs.put(BSRConstants.MAXCONNTIME, "120000");
 		/**BACKLOG队列长度*/
-		configs.put(BSRConstants.BACKLOG, "1024");
+		configs.put(BSRConstants.BACKLOG, "1024000");
 		/**允许同时建立链接的数量*/
-		configs.put(BSRConstants.MAXCONNECTIONS, "100");
+		configs.put(BSRConstants.MAXCONNECTIONS, "65536");
 		/**进程启动的延时时间*/
 		configs.put(BSRConstants.THREAD_SKIPTIME, "300");
 		/**boss线程数量*/
@@ -59,9 +59,9 @@ public class BSRConfiger {
 		/**缓冲区池中缓冲对象每个的大小*/
 		configs.put(BSRConstants.BYTEBUFFER_SIZE, "1024");
 		/**缓冲区池中缓冲对象每个的大小*/
-		configs.put(BSRConstants.LOG_FILE, "BSR.log");
+		configs.put(BSRConstants.LOG_FILE, "E:/1log.txt");
 		/**静态资源的ROOT路径*/
-		configs.put(BSRConstants.ROOT_DIR, "~/");
+		configs.put(BSRConstants.ROOT_DIR, "E:/kanmars.github.com/_site/");
 		
 	}
 	

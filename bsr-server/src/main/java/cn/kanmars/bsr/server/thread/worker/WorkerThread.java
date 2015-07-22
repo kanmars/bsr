@@ -43,63 +43,79 @@ public class WorkerThread extends Thread {
 		Logger.info("WorkerThread开始运行");
 		while(true){
 			try {
-				BSRContext bsrContext = BSRContextRegister.getReadableBSRContext();
+				BSRContext bsrContext = BSRContextRegister.getOperableBSRContext();
 				if(bsrContext == null){
 					continue;
 				}
-				//Logger.debug("获取到读取事件，开始处理");
-				SocketChannel socketChannel = bsrContext.getSocketChannel();
-				
-				
-				if(!socketChannel.isConnected()){
-					BSRContextRegister.removeBSRContext(socketChannel);
-					continue;
-				}
-				try{
-					//从缓冲池中获取ByteBuffer
-					ByteBuffer byteBuffer = BSRPoolsHolder.getBSRByteBufferPool().requireT();
-					//读取数据
-					while(true){
-						int length =socketChannel.read(byteBuffer);
-						if(length >0){
-							//将读取到的byte放入到BSRContext
-							if(byteBuffer.hasArray()){
-								bsrContext.getBao().write(byteBuffer.array(),0,length);
-							}else{
-								byte[] tmp = new byte[byteBuffer.position()];
-								byteBuffer.get(tmp);
-								bsrContext.getBao().write(tmp,0,tmp.length);
-							}
-							//本次读取完毕，开始管道线处理
-							bsrPipeProcessor.execute(BSREvents.OP_READ,bsrContext);
-						}else if(length ==0){
-							//如果本次事件触发，内层循环中长度为0，则忽略本次事件
-							break;
-						}else if(length == -1){
-							//如果读取到-1则为已关闭状态
-							if(!socketChannel.isConnected()){
-								Logger.debug("read-1.socket关闭");
-								bsrPipeProcessor.execute(BSREvents.OP_CLOSE,bsrContext);
-								BSRContextRegister.removeBSRContext(socketChannel);
-							}
-						}else{
-							Logger.debug("通讯异常");
-						}
-						
+				if(bsrContext.isRead()){
+					//Logger.debug("获取到可读事件，开始处理");
+					SocketChannel socketChannel = bsrContext.getSocketChannel();
+					if(!socketChannel.isConnected()){
+						BSRContextRegister.removeBSRContext(socketChannel);
+						continue;
 					}
-					//将ByteBuffer释放到缓存中
-					BSRPoolsHolder.getBSRByteBufferPool().releaseT(byteBuffer);
-					
-				}catch(ClosedChannelException e){
-					Logger.debug("ClosedChannelException.socket关闭");
-					bsrPipeProcessor.execute(BSREvents.OP_CLOSE,bsrContext);
-					BSRContextRegister.removeBSRContext(socketChannel);
-				}catch(Exception e){
-					Logger.debug("发生其他异常.socket关闭");
-					bsrPipeProcessor.execute(BSREvents.OP_CLOSE,bsrContext);
-					BSRContextRegister.removeBSRContext(socketChannel);
+					try{
+						//从缓冲池中获取ByteBuffer
+						ByteBuffer byteBuffer = BSRPoolsHolder.getBSRByteBufferPool().requireT();
+						//读取数据
+						while(true){
+							int length =socketChannel.read(byteBuffer);
+							if(length >0){
+								//将读取到的byte放入到BSRContext
+								if(byteBuffer.hasArray()){
+									bsrContext.getReadBao().write(byteBuffer.array(),0,length);
+								}else{
+									byte[] tmp = new byte[byteBuffer.position()];
+									byteBuffer.get(tmp);
+									bsrContext.getReadBao().write(tmp,0,tmp.length);
+								}
+								//本次读取完毕，开始管道线处理
+								bsrPipeProcessor.execute(BSREvents.OP_READ,bsrContext);
+							}else if(length ==0){
+								//如果本次事件触发，内层循环中长度为0，则忽略本次事件
+								break;
+							}else if(length == -1){
+								//如果读取到-1则为已关闭状态
+								if(!socketChannel.isConnected()){
+									Logger.debug("read-1.socket关闭");
+									bsrPipeProcessor.execute(BSREvents.OP_CLOSE,bsrContext);
+									BSRContextRegister.removeBSRContext(socketChannel);
+								}
+							}else{
+								Logger.debug("通讯异常");
+							}
+							
+						}
+						//将ByteBuffer释放到缓存中
+						BSRPoolsHolder.getBSRByteBufferPool().releaseT(byteBuffer);
+						
+					}catch(ClosedChannelException e){
+						Logger.debug("ClosedChannelException.socket关闭");
+						bsrPipeProcessor.execute(BSREvents.OP_CLOSE,bsrContext);
+						BSRContextRegister.removeBSRContext(socketChannel);
+					}catch(Exception e){
+						Logger.debug("发生其他异常.socket关闭");
+						bsrPipeProcessor.execute(BSREvents.OP_CLOSE,bsrContext);
+						BSRContextRegister.removeBSRContext(socketChannel);
+					}
+				}else if(bsrContext.isWrite()){
+					//Logger.debug("获取到写事件，开始处理");
+					SocketChannel socketChannel = bsrContext.getSocketChannel();
+					if(!socketChannel.isConnected()){
+						BSRContextRegister.removeBSRContext(socketChannel);
+						continue;
+					}
+					//管道线处理写事件
+					try{
+						bsrPipeProcessor.execute(BSREvents.OP_WRITE,bsrContext);
+					}catch(Exception e){
+						Logger.debug("发生其他异常.socket关闭");
+						bsrPipeProcessor.execute(BSREvents.OP_CLOSE,bsrContext);
+						BSRContextRegister.removeBSRContext(socketChannel);
+					}
 				}
 			} catch (Exception e) {
+				//总体异常
 				e.printStackTrace();
 			}
 		}

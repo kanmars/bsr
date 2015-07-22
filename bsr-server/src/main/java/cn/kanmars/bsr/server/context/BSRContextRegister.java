@@ -18,7 +18,7 @@ public class BSRContextRegister {
 	/**
 	 * 可操作的BSRContext队列
 	 */
-	private static LinkedBlockingQueue<BSRContext> readableBSRContext = new LinkedBlockingQueue<BSRContext>();
+	private static LinkedBlockingQueue<BSRContext> operableBSRContext = new LinkedBlockingQueue<BSRContext>();
 	
 	
 	/**
@@ -77,9 +77,9 @@ public class BSRContextRegister {
 	 * 从可操作的BSRContext队列中获取一个可操作上下文
 	 * @return
 	 */
-	public static BSRContext getReadableBSRContext(){
+	public static BSRContext getOperableBSRContext(){
 		try {
-			return readableBSRContext.poll(10000, TimeUnit.MILLISECONDS);
+			return operableBSRContext.poll(10000, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			Logger.debug("发生异常");
 			return null;
@@ -90,11 +90,11 @@ public class BSRContextRegister {
 	 * 从可操作的BSRContext队列中添加一个可操作上下文
 	 * @return
 	 */
-	public static boolean addReadableBSRContext(BSRContext bsrContext){
-		if(!readableBSRContext.contains(bsrContext)){
+	public static boolean addOperableBSRContext(BSRContext bsrContext){
+		if(!operableBSRContext.contains(bsrContext)){
 			//如果不包含，则增加进去
 			if(bsrContext != null){
-				return readableBSRContext.add(bsrContext);
+				return operableBSRContext.add(bsrContext);
 			}else{
 				return false;
 			}

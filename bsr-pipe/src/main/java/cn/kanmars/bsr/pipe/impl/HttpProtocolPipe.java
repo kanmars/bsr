@@ -1,9 +1,6 @@
 package cn.kanmars.bsr.pipe.impl;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
-
-import javax.servlet.http.Cookie;
 
 import cn.kanmars.bsr.http.request.BSRHttpServletRequest;
 import cn.kanmars.bsr.http.request.BSRHttpServletRequestParser;
@@ -22,62 +19,53 @@ import cn.kanmars.bsr.server.pipe.BSRPipe;
  *
  */
 public class HttpProtocolPipe extends BSRPipe{
-	public void execute(String bsrEvents,Object ... objs) {
-		if(bsrEvents.equals(BSREvents.OP_READ)){
-			BSRContext bsrContext = (BSRContext)objs[0];
-			String req = new String(bsrContext.getContent());
-			Logger.debug("客户端请求为["+req+"]");
-			
-			try {
-				if(BSRHttpServletRequestParser.isReceivedAll(bsrContext.getBao())){
-					
-					BSRHttpServletRequest bsrHttpServletRequest = (BSRHttpServletRequest) BSRHttpServletRequestParser.parse(bsrContext.getBao());
-					bsrContext.getBao().reset();
+	public void execute(String bsrEvents,Object ... objs) throws Exception {
+		try {
+			if(bsrEvents.equals(BSREvents.OP_READ)){
+				BSRContext bsrContext = (BSRContext)objs[0];
+				String req = new String(bsrContext.getReadContent());
+				Logger.debug("客户端["+bsrContext.getUuid()+"]请求为["+req+"]");
+				if(BSRHttpServletRequestParser.isReceivedAll(bsrContext.getReadBao())){
+					//开始操作数据
+					BSRHttpServletRequest bsrHttpServletRequest = (BSRHttpServletRequest) BSRHttpServletRequestParser.parse(bsrContext.getReadBao());
+					bsrContext.getReadBao().reset();
 					bsrHttpServletRequest.setRemoteAddr(bsrContext.getSocketChannel().getRemoteAddress().toString());
 					bsrHttpServletRequest.setRemoteHost(((InetSocketAddress)bsrContext.getSocketChannel().getRemoteAddress()).getHostString());
 					/**常用的报文*/
 					BSRHttpServletResponse bsrHttpServletResponse = BSRHttpServletResponseParser.createResponse(200,"OK", null);
-//					try {
-//						bsrHttpServletResponse.getOutputStream().write("这是一篇非常长非常长的文章".getBytes("GBK"));
-//						bsrHttpServletResponse.setContentType("text/html; charset=GBK");
-//					} catch (IOException e) {
-//						e.printStackTrace();
-//					}
 //					/**重定向报文*/
 //					BSRHttpServletResponse response2 = BSRHttpServletResponseParser.createSendRedirectResponse(301, "Moved Permanently", null, "http://www.baidu.com");
 
 					/**根据request中的末尾，设置contentType*/			
 					String content_Type = getContentTypeByFileSuffix(bsrHttpServletRequest,bsrHttpServletResponse);
 					bsrHttpServletResponse.setContentType(content_Type);
-					
-					Cookie c1 = new Cookie("kan_1", "a");
-					Cookie c2 = new Cookie("kan_2", "b");
-					c1.setMaxAge(1000);
-					//c2.setDomain("kanmars.cn");
-					c1.setPath("/");
-					c2.setPath("/");
-					
-					bsrHttpServletResponse.addCookie(c1);
-					bsrHttpServletResponse.addCookie(c2);
 					/**
 					 * 在诸多请求都准备好之后，执行下一步管道
 					 */
 					doNext(bsrEvents,bsrHttpServletRequest,bsrHttpServletResponse);
-					/**报文发送*/
-					try {
-						bsrContext.write(BSRHttpServletResponseParser.transResponseToBytes(bsrHttpServletResponse));
-					} catch (Throwable e) {
-						Logger.debug("协议处理层发现通道已关闭");
-						e.printStackTrace();
-					}	
+					
+					/**设置响应报文*/
+					bsrContext.getWriteBao().write(BSRHttpServletResponseParser.transResponseToBytes(bsrHttpServletResponse));
+					
+					//在报文操作成功后，转变bsrContext到写事件监听
+					bsrContext.changeSelectorRegister2Write();
 				
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
+			}else if(bsrEvents.equals(BSREvents.OP_WRITE)){
+				
+				BSRContext bsrContext = (BSRContext)objs[0];
+				if(bsrContext.isLive()){
+					//写出数据
+					bsrContext.write(bsrContext.getWriteBao().toByteArray());
+					//输出后，清空内容
+					bsrContext.cleanContent();
+					//在报文写出成功后，转变bsrContext到读事件监听
+					bsrContext.changeSelectorRegister2Read();
+				}
+			}else if(bsrEvents.equals(BSREvents.OP_CLOSE)){
 			}
-			
-		}else if(bsrEvents.equals(BSREvents.OP_CLOSE)){
-			System.out.println("发生远程客户端关闭事件");
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		
 		

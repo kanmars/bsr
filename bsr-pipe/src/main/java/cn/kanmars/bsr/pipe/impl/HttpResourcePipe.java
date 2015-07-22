@@ -37,7 +37,7 @@ public class HttpResourcePipe extends BSRPipe {
 
 
 	@Override
-	public void execute(String bsrEvents, Object... obj) {
+	public void execute(String bsrEvents, Object... obj) throws Exception {
 		if(bsrEvents.equals(BSREvents.OP_READ)){
 			BSRHttpServletRequest bsrHttpServletRequest = (BSRHttpServletRequest)obj[0];
 			BSRHttpServletResponse bsrHttpServletResponse = (BSRHttpServletResponse)obj[1];

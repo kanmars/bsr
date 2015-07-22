@@ -15,6 +15,18 @@ import cn.kanmars.bsr.server.constant.BSRConstants;
  */
 public class Logger {
 	
+	
+	
+	static{
+		try {
+			PrintWriter pw = new PrintWriter(new FileOutputStream(new File(getLogFile()),false));
+			pw.println("--start--");
+			pw.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public static String getLogFile(){
 		return BSRConfiger.getConfig(BSRConstants.LOG_FILE);
 	}
@@ -35,7 +47,7 @@ public class Logger {
 	public static void println(String msg){
 		System.out.println(msg);
 		try {
-			PrintWriter pw = new PrintWriter(new FileOutputStream(new File("E:/1log.txt"),true));
+			PrintWriter pw = new PrintWriter(new FileOutputStream(new File(getLogFile()),true));
 			pw.println(msg);
 			pw.close();
 		} catch (FileNotFoundException e) {

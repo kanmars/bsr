@@ -3,6 +3,9 @@ package cn.kanmars.bsr.server.context;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.UUID;
 
@@ -18,6 +21,12 @@ import cn.kanmars.bsr.server.log.Logger;
  *
  */
 public class BSRContext implements Comparable<BSRContext> {
+	
+	/**
+	 * 选择器
+	 */
+	private Selector selector;
+	
 	/**
 	 * socketChannel上下文
 	 */
@@ -34,6 +43,11 @@ public class BSRContext implements Comparable<BSRContext> {
 	private long operationTime;
 	
 	/**
+	 * 读写标志
+	 */
+	private String read_write_flg ;
+	
+	/**
 	 * 是否存活
 	 */
 	private volatile boolean isLive;
@@ -43,27 +57,40 @@ public class BSRContext implements Comparable<BSRContext> {
 	 */
 	private UUID uuid;
 	/**
-	 * 连接内容
+	 * 读取到的内容
 	 */
-	private ByteArrayOutputStream bao = new ByteArrayOutputStream();
+	private ByteArrayOutputStream readBao = new ByteArrayOutputStream();
+	/**
+	 * 写出的内容
+	 */
+	private ByteArrayOutputStream writeBao = new ByteArrayOutputStream();
 
 	public BSRContext() {
 		uuid = UUID.randomUUID();
 	}
 
 	/**
-	 * 获取字节内容
+	 * 获取请求字节内容
 	 * @return
 	 */
-	public byte[] getContent(){
-		return bao.toByteArray();
+	public byte[] getReadContent(){
+		return readBao.toByteArray();
+	}
+	
+	/**
+	 * 获取输出字节内容
+	 * @return
+	 */
+	public byte[] getWriteContent(){
+		return writeBao.toByteArray();
 	}
 	
 	/**
 	 * 清空内容
 	 */
 	public void cleanContent(){
-		bao.reset();
+		readBao.reset();
+		writeBao.reset();
 	}
 	
 	/**
@@ -72,8 +99,11 @@ public class BSRContext implements Comparable<BSRContext> {
 	 */
 	public void write(byte[] bytes){
 		if(isLive()){
+			Logger.info("客户端["+getUuid()+"]尝试输出["+new String(bytes,0,bytes.length>1000?1000:bytes.length) +"]");
 			//从缓冲池中获取ByteBuffer
 			ByteBuffer byteBuffer = BSRPoolsHolder.getBSRByteBufferPool().requireT();
+			int out = 0;
+			int all_length = bytes.length;
 			try {
 				int size = Integer.parseInt(BSRConfiger.getConfig(BSRConstants.BYTEBUFFER_SIZE));
 				for(int i=0;i<bytes.length;i+=size){
@@ -89,7 +119,7 @@ public class BSRContext implements Comparable<BSRContext> {
 					byteBuffer.put(bytes,i,length);
 					byteBuffer.flip();
 					while(byteBuffer.hasRemaining()){
-						socketChannel.write(byteBuffer);
+						out += socketChannel.write(byteBuffer);
 					}
 				}
 			} catch (IOException e) {
@@ -114,6 +144,65 @@ public class BSRContext implements Comparable<BSRContext> {
 		}
 	}
 	
+	/**
+	 * 变更选择器监听时间为可写
+	 * @throws ClosedChannelException
+	 */
+	public void changeSelectorRegister2Write() throws ClosedChannelException{
+		this.socketChannel.register(selector, SelectionKey.OP_WRITE);
+		changeBSRContext2Write();
+	}
+	/**
+	 * 变更选择器监听时间为可读
+	 * @throws ClosedChannelException
+	 */
+	public void changeSelectorRegister2Read() throws ClosedChannelException{
+		this.socketChannel.register(selector, SelectionKey.OP_READ);
+		changeBSRContext2Read();
+	}
+	
+	/**
+	 * 修改读写标志为读
+	 */
+	public void changeBSRContext2Read(){
+		this.read_write_flg = BSRConstants.BSRContext_READ_FLG;
+	}
+	/**
+	 * 修改读写标志为写
+	 */
+	public void changeBSRContext2Write(){
+		this.read_write_flg = BSRConstants.BSRContext_WRITE_FLG;
+	}
+	
+	/**
+	 * 判断当前上下文是否是读状态
+	 * @return
+	 */
+	public boolean isRead(){
+		if(this.read_write_flg!=null && this.read_write_flg.equals(BSRConstants.BSRContext_READ_FLG)){
+			return true;
+		}
+		return false;
+	}
+	/**
+	 * 判断当前上下文是否是写状态
+	 * @return
+	 */
+	public boolean isWrite(){
+		if(this.read_write_flg!=null && this.read_write_flg.equals(BSRConstants.BSRContext_WRITE_FLG)){
+			return true;
+		}
+		return false;
+	}
+	
+	public Selector getSelector() {
+		return selector;
+	}
+
+	public void setSelector(Selector selector) {
+		this.selector = selector;
+	}
+
 	public SocketChannel getSocketChannel() {
 		return socketChannel;
 	}
@@ -138,6 +227,14 @@ public class BSRContext implements Comparable<BSRContext> {
 		this.operationTime = operationTime;
 	}
 
+	public String getRead_write_flg() {
+		return read_write_flg;
+	}
+
+	public void setRead_write_flg(String read_write_flg) {
+		this.read_write_flg = read_write_flg;
+	}
+
 	public boolean isLive() {
 		return socketChannel.isConnected()&& isLive;
 	}
@@ -155,14 +252,23 @@ public class BSRContext implements Comparable<BSRContext> {
 		this.isLive = isLive;
 	}
 	
-	public ByteArrayOutputStream getBao() {
-		return bao;
+	
+	public ByteArrayOutputStream getReadBao() {
+		return readBao;
 	}
 
-	public void setBao(ByteArrayOutputStream bao) {
-		this.bao = bao;
+	public void setReadBao(ByteArrayOutputStream readBao) {
+		this.readBao = readBao;
 	}
-	
+
+	public ByteArrayOutputStream getWriteBao() {
+		return writeBao;
+	}
+
+	public void setWriteBao(ByteArrayOutputStream writeBao) {
+		this.writeBao = writeBao;
+	}
+
 	/**
 	 * 用于ConcurrentSkipListSet的比较
 	 */

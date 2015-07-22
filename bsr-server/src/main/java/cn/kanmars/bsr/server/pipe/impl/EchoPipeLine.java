@@ -6,11 +6,11 @@ import cn.kanmars.bsr.server.pipe.BSRPipe;
 
 public class EchoPipeLine extends BSRPipe {
 
-	public void execute(String bsrEvents , Object ... objs) {
+	public void execute(String bsrEvents , Object ... objs) throws Exception {
 		
 		if(bsrEvents.equals(BSREvents.OP_READ)){
 			BSRContext bsrContext = (BSRContext)objs[0];
-			String req = new String(bsrContext.getContent());
+			String req = new String(bsrContext.getReadContent());
 			System.out.println("客户端请求为["+req+"]");
 			bsrContext.write(req.getBytes());	
 		}else if(bsrEvents.equals(BSREvents.OP_CLOSE)){
