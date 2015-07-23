@@ -11,14 +11,13 @@ import java.util.zip.GZIPOutputStream;
 
 import javax.servlet.http.Cookie;
 
-import cn.kanmars.bsr.http.request.BSRHttpServletRequest;
 import cn.kanmars.bsr.http.stream.BSRServletOutputStream;
 import cn.kanmars.bsr.http.util.DateUtils;
 import cn.kanmars.bsr.http.util.StringUtils;
 
 public class BSRHttpServletResponseParser {
 	
-	private static int chunkLength = 50*1024;//大的chunkLength = 50K
+	private static int chunkLength = 500*1024;//一个chunk为500K
 	/**
 	 * 创建一个指定内容的响应
 	 * @param status	状态
@@ -78,29 +77,18 @@ public class BSRHttpServletResponseParser {
 	 * @param response
 	 * @throws Exception 
 	 */
-	public static byte[] transResponseToBytes(BSRHttpServletRequest request, BSRHttpServletResponse response,boolean gzip) throws Exception{
+	public static byte[] transResponseToBytes(BSRHttpServletResponse response) throws Exception{
 		ByteArrayOutputStream bao = new ByteArrayOutputStream();
 		bao.write((response.getProtocol()+" "+response.getStatus()+" "+response.getStatus_message()+"\r\n").getBytes());
 		if(StringUtils.isNotEmpty(response.getContentType())){
 			response.setHeader("Content-Type", response.getContentType());
 		}
 		response.setHeader("Date", DateUtils.getGMTStr());
-		//如果需要压缩
-		if(gzip){
-			response.setHeader("Content-Encoding", "gzip");
-		}
-		
 		//获取报文体
 		byte[] contentBytes = ((BSRServletOutputStream)response.getOutputStream()).getContentBytes();
-		
-		if(gzip){
-			//进行压缩
-			contentBytes = transBytes2GzipBytes(contentBytes,0,contentBytes.length);
-		}
-		
 		//组装报文
-		//如果报文小于chunkLength 或者浏览器不支持chunk报文
-		if(contentBytes.length<=chunkLength || !browserSupportChunk(request)){
+		if(contentBytes.length<=chunkLength){
+			//报文长度小于某个长度，则直接设置长度
 			response.setContentLength(contentBytes.length);
 			if(response.getContentLength() >=0){
 				response.setHeader("Content-Length", ""+response.getContentLength());
@@ -122,6 +110,7 @@ public class BSRHttpServletResponseParser {
 			//chunked报文组装
 			Map<String, String> headers = response.getHeaders();
 			headers.put("Transfer-Encoding", "chunked");
+			
 			
 			for(Entry<String, String> e : headers.entrySet()){
 				bao.write((e.getKey()+": "+e.getValue()+"\r\n").getBytes());
@@ -153,6 +142,80 @@ public class BSRHttpServletResponseParser {
 		return bao.toByteArray();
 	}
 	
+	/**
+	 * 将response转化为byte数组，在转化时，修改header域，生成Content-Length等信息，采用gzip压缩
+	 * @param response
+	 * @throws Exception 
+	 */
+	public static byte[] transResponseToGzipBytes(BSRHttpServletResponse response) throws Exception{
+		ByteArrayOutputStream bao = new ByteArrayOutputStream();
+		bao.write((response.getProtocol()+" "+response.getStatus()+" "+response.getStatus_message()+"\r\n").getBytes());
+		if(StringUtils.isNotEmpty(response.getContentType())){
+			response.setHeader("Content-Type", response.getContentType());
+		}
+		response.setHeader("Content-Encoding", "gzip");
+		response.setHeader("Date", DateUtils.getGMTStr());
+		
+		byte[] contentBytes = ((BSRServletOutputStream)response.getOutputStream()).getContentBytes();
+		
+		//进行压缩
+		contentBytes = transBytes2GzipBytes(contentBytes,0,contentBytes.length);
+		//组装报文
+		if(contentBytes.length<=chunkLength){
+			//报文长度小于某个长度，则直接设置长度
+			response.setContentLength(contentBytes.length);
+			if(response.getContentLength() >=0){
+				response.setHeader("Content-Length", ""+response.getContentLength());
+			}
+			
+			Map<String, String> headers = response.getHeaders();
+			
+			for(Entry<String, String> e : headers.entrySet()){
+				bao.write((e.getKey()+": "+e.getValue()+"\r\n").getBytes());
+			}
+			//增加cookie信息
+			addCookiesInfo(response,bao);
+			//头部结束
+			bao.write("\r\n".getBytes());
+			
+			bao.write(contentBytes);
+			bao.write(("\r\n").getBytes());
+		}else{
+			//chunked报文组装
+			Map<String, String> headers = response.getHeaders();
+			headers.put("Transfer-Encoding", "chunked");
+			
+			
+			for(Entry<String, String> e : headers.entrySet()){
+				bao.write((e.getKey()+": "+e.getValue()+"\r\n").getBytes());
+			}
+			//增加cookie信息
+			addCookiesInfo(response,bao);
+			//头部结束
+			bao.write("\r\n".getBytes());
+			for(int i=0;i<contentBytes.length;i+=chunkLength){
+				if(i!=0){
+					bao.write(("\r\n").getBytes());
+				}
+				if(i+chunkLength<contentBytes.length){
+					//如果长度够一个chunk
+					bao.write((""+transD216X(chunkLength)+"\r\n").getBytes());
+					bao.write(contentBytes,i,chunkLength);
+					bao.write(("\r\n").getBytes());
+				}else{
+					//如果长度不够一个chunk
+					int length = contentBytes.length - i;
+					bao.write((""+transD216X(length)+"\r\n").getBytes());
+					bao.write(contentBytes,i,length);
+					bao.write(("\r\n").getBytes());
+				}
+			}
+			bao.write(("\r\n0\r\n\r\n").getBytes());
+		}
+		
+		return bao.toByteArray();
+	}
+	
 	public static String transD216X(int length){
 		return Integer.toHexString(length);
 	}
@@ -172,22 +235,6 @@ public class BSRHttpServletResponseParser {
 			e.printStackTrace();
 		}  
 		return null;
-	}
-	
-	/**
-	 * 判断浏览器是否支持chunk
-	 * @param bsrHttpServletRequest
-	 * @return
-	 */
-	public static boolean browserSupportChunk(BSRHttpServletRequest bsrHttpServletRequest){
-		String userAgent =  bsrHttpServletRequest.getHeader("User-Agent");
-		if(userAgent==null){
-			return false;
-		}
-		if(userAgent.indexOf("MSIE 6") > 0 || userAgent.indexOf("MSIE 7") > 0 ||userAgent.indexOf("MSIE 8") > 0 ){
-			return false;
-		}
-		return true;
 	}
 	
 	public static byte[] transGzipBytes2Bytes(byte[] gzipbyte){
