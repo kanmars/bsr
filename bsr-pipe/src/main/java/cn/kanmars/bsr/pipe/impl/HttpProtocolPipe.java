@@ -45,7 +45,13 @@ public class HttpProtocolPipe extends BSRPipe{
 					doNext(bsrEvents,bsrHttpServletRequest,bsrHttpServletResponse);
 					
 					/**设置响应报文*/
-					bsrContext.getWriteBao().write(BSRHttpServletResponseParser.transResponseToBytes(bsrHttpServletResponse));
+					if(bsrHttpServletRequest.getHeader("Accept-Encoding").indexOf("gzip")>=0){
+						//如果需要gzip压缩，则转换为gzip报文
+						bsrContext.getWriteBao().write(BSRHttpServletResponseParser.transResponseToGzipBytes(bsrHttpServletResponse));
+					}else{
+						//如果不需要，则返回正常报文
+						bsrContext.getWriteBao().write(BSRHttpServletResponseParser.transResponseToBytes(bsrHttpServletResponse));
+					}
 					
 					//在报文操作成功后，转变bsrContext到写事件监听
 					bsrContext.changeSelectorRegister2Write();

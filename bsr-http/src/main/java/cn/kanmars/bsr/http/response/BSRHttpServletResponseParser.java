@@ -1,10 +1,13 @@
 package cn.kanmars.bsr.http.response;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import javax.servlet.http.Cookie;
 
@@ -68,7 +71,7 @@ public class BSRHttpServletResponseParser {
 	}
 	
 	/**
-	 * 将response转化为byte数组，在转化时，修改header域，生成Content-Length等信息
+	 * 将response转化为byte数组，在转化时，修改header域，生成Content-Length等信息，正常报文无压缩
 	 * @param response
 	 * @throws Exception 
 	 */
@@ -138,8 +141,124 @@ public class BSRHttpServletResponseParser {
 		return bao.toByteArray();
 	}
 	
+	/**
+	 * 将response转化为byte数组，在转化时，修改header域，生成Content-Length等信息，采用gzip压缩
+	 * @param response
+	 * @throws Exception 
+	 */
+	public static byte[] transResponseToGzipBytes(BSRHttpServletResponse response) throws Exception{
+		ByteArrayOutputStream bao = new ByteArrayOutputStream();
+		bao.write((response.getProtocol()+" "+response.getStatus()+" "+response.getStatus_message()+"\r\n").getBytes());
+		if(StringUtils.isNotEmpty(response.getContentType())){
+			response.setHeader("Content-Type", response.getContentType());
+		}
+		response.setHeader("Content-Encoding", "gzip");
+		response.setHeader("Date", DateUtils.getGMTStr());
+		
+		byte[] contentBytes = ((BSRServletOutputStream)response.getOutputStream()).getContentBytes();
+		
+		//进行压缩
+		contentBytes = transBytes2GzipBytes(contentBytes,0,contentBytes.length);
+		
+		//设置报文长度
+		int chunkLength = 5120;
+		if(contentBytes.length<=chunkLength){
+			//报文长度小于某个长度，则直接设置长度
+			response.setContentLength(contentBytes.length);
+			if(response.getContentLength() >=0){
+				response.setHeader("Content-Length", ""+response.getContentLength());
+			}
+			
+			Map<String, String> headers = response.getHeaders();
+			
+			for(Entry<String, String> e : headers.entrySet()){
+				bao.write((e.getKey()+": "+e.getValue()+"\r\n").getBytes());
+			}
+			//增加cookie信息
+			addCookiesInfo(response,bao);
+			//头部结束
+			bao.write("\r\n".getBytes());
+			
+			bao.write(contentBytes);
+			bao.write(("\r\n").getBytes());
+		}else{
+			//chunked报文组装
+			Map<String, String> headers = response.getHeaders();
+			headers.put("Transfer-Encoding", "chunked");
+			
+			
+			for(Entry<String, String> e : headers.entrySet()){
+				bao.write((e.getKey()+": "+e.getValue()+"\r\n").getBytes());
+			}
+			//增加cookie信息
+			addCookiesInfo(response,bao);
+			//头部结束
+			bao.write("\r\n".getBytes());
+			for(int i=0;i<contentBytes.length;i+=chunkLength){
+				if(i!=0){
+					bao.write(("\r\n").getBytes());
+				}
+				if(i+chunkLength<contentBytes.length){
+					//如果长度够一个chunk
+					bao.write((""+transD216X(chunkLength)+"\r\n").getBytes());
+					bao.write(contentBytes,i,chunkLength);
+					bao.write(("\r\n").getBytes());
+				}else{
+					//如果长度不够一个chunk
+					int length = contentBytes.length - i;
+					bao.write((""+transD216X(length)+"\r\n").getBytes());
+					bao.write(contentBytes,i,length);
+					bao.write(("\r\n").getBytes());
+				}
+			}
+			bao.write(("0\r\n\r\n").getBytes());
+		}
+		
+		return bao.toByteArray();
+	}
+	
 	public static String transD216X(int length){
 		return Integer.toHexString(length);
+	}
+	
+	public static byte[] transBytes2GzipBytes(byte[] simplebyte,int start,int length){
+        try {
+        	ByteArrayOutputStream baos = new ByteArrayOutputStream();  
+        	// 压缩  
+        	GZIPOutputStream gos = new GZIPOutputStream(baos);  
+			gos.write(simplebyte, start, length);
+			gos.finish();  
+			byte[] output = baos.toByteArray();  
+			baos.flush();  
+			baos.close();  
+			return output;  
+		} catch (IOException e) {
+			e.printStackTrace();
+		}  
+		return null;
+	}
+	
+	public static byte[] transGzipBytes2Bytes(byte[] gzipbyte){
+		 try {
+			 	ByteArrayOutputStream baos = new ByteArrayOutputStream();  
+	        	ByteArrayInputStream bin = new ByteArrayInputStream(gzipbyte);
+	        	// 压缩  
+	        	GZIPInputStream gis = new GZIPInputStream(bin);
+	        	
+	        	byte[] temp = new byte[5120];
+	        	int count = 0;
+	        	while((count = gis.read(temp))>0){
+	        		baos.write(temp,0,count);
+	        	}
+				gis.close();  
+				byte[] output = baos.toByteArray();  
+				baos.flush();  
+				baos.close();  
+				return output;  
+			} catch (IOException e) {
+				e.printStackTrace();
+			}  
+			return null;
 	}
 	
 	/**
