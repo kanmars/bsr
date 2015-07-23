@@ -101,9 +101,10 @@ public static void main(String[] args) throws Exception {
 	 * @throws NumberFormatException 
 	 */
 	public static void runBossThread() throws NumberFormatException, InterruptedException{
-		ExecutorService executorService = Executors.newFixedThreadPool(Integer.parseInt(BSRConfiger.getConfig(BSRConstants.BOSS_THREAD_NUMBER)));
-		BossThread bt = new BossThread(SelectorHolder.getSocketSelector(), ServerSocketChannelHolder.getServerSocketChannel());
-		executorService.execute(bt);
+		for(int i=0;i<Integer.parseInt(BSRConfiger.getConfig(BSRConstants.BOSS_THREAD_NUMBER));i++){
+			BossThread bt = new BossThread(SelectorHolder.getSocketSelector(), ServerSocketChannelHolder.getServerSocketChannel());
+			bt.startup();
+		}
 		Thread.sleep(Long.parseLong(BSRConfiger.getConfig(BSRConstants.THREAD_SKIPTIME)));
 	}
 	
@@ -120,9 +121,10 @@ public static void main(String[] args) throws Exception {
 		/**生成管道线处理器*/
 		BSRPipelineProcessor bsrPipeProcessor = new BSRPipelineProcessor(bsrPipeLine);
 		/**启动Worker线程*/
-		WorkerThread wt = new WorkerThread();
-		wt.setBsrPipeProcessor(bsrPipeProcessor);
-		Executors.newFixedThreadPool(Integer.parseInt(BSRConfiger.getConfig(BSRConstants.WORKER_THREAD_NUMBER))).execute(wt);
+		for(int i=0;i<Integer.parseInt(BSRConfiger.getConfig(BSRConstants.WORKER_THREAD_NUMBER));i++){
+			WorkerThread wt = new WorkerThread(bsrPipeProcessor);
+			wt.startup();
+		}
 		Thread.sleep(Long.parseLong(BSRConfiger.getConfig(BSRConstants.THREAD_SKIPTIME)));
 	}
 	/**
@@ -131,8 +133,10 @@ public static void main(String[] args) throws Exception {
 	 * @throws NumberFormatException 
 	 */
 	public static void runBackThread() throws NumberFormatException, InterruptedException{
-		BackGroundThread bgt = new BackGroundThread();
-		Executors.newFixedThreadPool(Integer.parseInt(BSRConfiger.getConfig(BSRConstants.BACK_THREAD_NUMBER))).execute(bgt);
+		for(int i=0;i<Integer.parseInt(BSRConfiger.getConfig(BSRConstants.BACK_THREAD_NUMBER));i++){
+			BackGroundThread bgt = new BackGroundThread();
+			bgt.startup();
+		}
 		Thread.sleep(Long.parseLong(BSRConfiger.getConfig(BSRConstants.THREAD_SKIPTIME)));
 	}
 

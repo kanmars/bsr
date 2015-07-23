@@ -11,6 +11,7 @@ import java.util.Random;
 import cn.kanmars.bsr.server.context.BSRContext;
 import cn.kanmars.bsr.server.context.BSRContextRegister;
 import cn.kanmars.bsr.server.log.Logger;
+import cn.kanmars.bsr.server.thread.ThreadRegister;
 
 /**
  * 分发器线程
@@ -109,6 +110,10 @@ public class BossThread extends Thread {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public void startup(){
+		ThreadRegister.bossExecutorService.execute(this);
 	}
 
 }

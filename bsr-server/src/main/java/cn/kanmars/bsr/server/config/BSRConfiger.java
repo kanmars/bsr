@@ -17,13 +17,16 @@ public class BSRConfiger {
 	 */
 	private static Map<String,String> configs = new HashMap<String, String>();
 	
+	static{
+		/**加载默认的configs*/
+		initDefaultConfigs();
+	}
+	
 	/**
 	 * 加载服务器配置
 	 * @param args
 	 */
 	public static void loadConfiger(String[] args){
-		/**加载默认的configs*/
-		initDefaultConfigs();
 		/**解析参数中的配置文件*/
 		parseArgsConfigs(args);
 	}

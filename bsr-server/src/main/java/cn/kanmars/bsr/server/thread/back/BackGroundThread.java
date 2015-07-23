@@ -8,6 +8,7 @@ import cn.kanmars.bsr.server.constant.BSRConstants;
 import cn.kanmars.bsr.server.context.BSRContext;
 import cn.kanmars.bsr.server.context.BSRContextRegister;
 import cn.kanmars.bsr.server.log.Logger;
+import cn.kanmars.bsr.server.thread.ThreadRegister;
 
 public class BackGroundThread extends Thread {
 
@@ -48,6 +49,10 @@ public class BackGroundThread extends Thread {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public void startup(){
+		ThreadRegister.backgroundExecutorService.execute(this);
 	}
 	
 }

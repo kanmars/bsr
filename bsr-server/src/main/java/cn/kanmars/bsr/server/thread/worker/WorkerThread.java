@@ -1,6 +1,5 @@
 package cn.kanmars.bsr.server.thread.worker;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SocketChannel;
@@ -12,6 +11,7 @@ import cn.kanmars.bsr.server.event.BSREvents;
 import cn.kanmars.bsr.server.log.Logger;
 import cn.kanmars.bsr.server.pipe.AbstracePipelineProcessor;
 import cn.kanmars.bsr.server.pipe.SimpleBSRPipeProcessor;
+import cn.kanmars.bsr.server.thread.ThreadRegister;
 
 /**
  * 工人线程
@@ -24,6 +24,12 @@ public class WorkerThread extends Thread {
 	
 	public WorkerThread() {
 		super();
+	}
+	
+
+	public WorkerThread(AbstracePipelineProcessor bsrPipeProcessor) {
+		super();
+		this.bsrPipeProcessor = bsrPipeProcessor;
 	}
 
 	public WorkerThread(SimpleBSRPipeProcessor bsrPipeProcessor) {
@@ -118,6 +124,10 @@ public class WorkerThread extends Thread {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public void startup(){
+		ThreadRegister.workerExecutorService.execute(this);
 	}
 
 }
