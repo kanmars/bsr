@@ -58,9 +58,9 @@ public class BSRConfiger {
 		/**后台清理线程数量*/
 		configs.put(BSRConstants.BACK_THREAD_NUMBER, "2");
 		/**缓冲区池的个数*/
-		configs.put(BSRConstants.BYTEBUFFER_NUMBER, "1000");
+		configs.put(BSRConstants.BYTEBUFFER_NUMBER, "10000");
 		/**缓冲区池中缓冲对象每个的大小*/
-		configs.put(BSRConstants.BYTEBUFFER_SIZE, "1024");
+		configs.put(BSRConstants.BYTEBUFFER_SIZE, "10240");
 		/**缓冲区池中缓冲对象每个的大小*/
 		configs.put(BSRConstants.LOG_FILE, "E:/1log.txt");
 		/**静态资源的ROOT路径*/
