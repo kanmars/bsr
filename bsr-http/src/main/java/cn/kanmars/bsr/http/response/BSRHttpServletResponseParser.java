@@ -17,7 +17,7 @@ import cn.kanmars.bsr.http.util.StringUtils;
 
 public class BSRHttpServletResponseParser {
 	
-	private static int chunkLength = 500*1024;//一个chunk为500K
+	private static int chunkLength = 500*1024;//大的chunkLength = 500K
 	/**
 	 * 创建一个指定内容的响应
 	 * @param status	状态
