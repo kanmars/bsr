@@ -53,6 +53,10 @@ public class WorkerThread extends Thread {
 				if(bsrContext == null){
 					continue;
 				}
+				//尝试将bsrContext的拥有者修改为当前线程
+				if(!bsrContext.changeOwner(this)){
+					continue;
+				}
 				if(bsrContext.isRead()){
 					Logger.debug("获取到UUID["+bsrContext.getUuid()+"]可读事件，开始处理");
 					SocketChannel socketChannel = bsrContext.getSocketChannel();
@@ -119,6 +123,8 @@ public class WorkerThread extends Thread {
 						BSRContextRegister.removeBSRContext(socketChannel);
 					}
 				}
+				bsrContext.cleanOwner(this);
+				
 			} catch (Exception e) {
 				//总体异常
 				e.printStackTrace();

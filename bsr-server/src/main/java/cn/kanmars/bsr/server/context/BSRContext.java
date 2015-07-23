@@ -8,6 +8,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.UUID;
+import java.util.concurrent.locks.ReentrantLock;
 
 import cn.kanmars.bsr.server.cache.BSRPoolsHolder;
 import cn.kanmars.bsr.server.cache.bytebufferpool.BSRByteBufferPool;
@@ -65,6 +66,16 @@ public class BSRContext implements Comparable<BSRContext> {
 	 */
 	private ByteArrayOutputStream writeBao = new ByteArrayOutputStream();
 
+	/**
+	 * 可重入的非公平锁，线程获取锁顺序与请求顺序无关
+	 */
+	private ReentrantLock lock = new ReentrantLock();
+	
+	/**
+	 * 当前上下文的占有者
+	 */
+	private volatile Object owner = null;
+	
 	public BSRContext() {
 		uuid = UUID.randomUUID();
 	}
@@ -193,6 +204,57 @@ public class BSRContext implements Comparable<BSRContext> {
 			return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * 改变当前上下文的所有者，如果该上下文已被其他人拥有，则返回false
+	 * @param o
+	 * @return
+	 */
+	public boolean changeOwner(Object o){
+		lock.lock();
+		boolean result = false;
+		if(owner!=null){
+			result =  false;
+		}else{
+			owner = o;
+			result = true;
+		}
+		lock.unlock();
+		return result;
+	}
+	/**
+	 * 清除上下文的所有者，如果清除者不是拥有者，则返回false
+	 * @param o
+	 * @return
+	 */
+	public boolean cleanOwner(Object o){
+		lock.lock();
+		boolean result = false;
+		if(owner!=null && owner!=o){
+			result =  false;
+		}else{
+			owner = null;
+			result = true;
+		}
+		lock.unlock();
+		return result;
+	}
+	/**
+	 * 判断当前上下文的所有者是否是o
+	 * @param o
+	 * @return
+	 */
+	public boolean isOwner(Object o){
+		lock.lock();
+		boolean result = false;
+		if(owner!=null && owner==o){
+			result =  true;
+		}else{
+			result = false;
+		}
+		lock.unlock();
+		return result;
 	}
 	
 	public Selector getSelector() {
