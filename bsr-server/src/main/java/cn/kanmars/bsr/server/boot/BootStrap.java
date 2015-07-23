@@ -3,7 +3,6 @@ package cn.kanmars.bsr.server.boot;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
 
 import cn.kanmars.bsr.server.cache.BSRPoolsHolder;
 import cn.kanmars.bsr.server.config.BSRConfiger;
