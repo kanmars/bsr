@@ -45,7 +45,7 @@ public class HttpProtocolPipe extends BSRPipe{
 					doNext(bsrEvents,bsrHttpServletRequest,bsrHttpServletResponse);
 					
 					/**设置响应报文*/
-					if(bsrHttpServletRequest.getHeader("Accept-Encoding").indexOf("gzip")>=0){
+					if(needGzip(bsrHttpServletRequest)){
 						//如果需要gzip压缩，则转换为gzip报文
 						bsrContext.getWriteBao().write(BSRHttpServletResponseParser.transResponseToGzipBytes(bsrHttpServletResponse));
 					}else{
@@ -75,6 +75,17 @@ public class HttpProtocolPipe extends BSRPipe{
 		}
 		
 		
+	}
+	
+	public boolean needGzip(BSRHttpServletRequest bsrHttpServletRequest){
+		
+		String uri = bsrHttpServletRequest.getRequestURI();
+		
+		if(bsrHttpServletRequest.getHeader("Accept-Encoding").indexOf("gzip")>=0){
+			return true;
+		}else{
+			return false;
+		}
 	}
 	
 	/**

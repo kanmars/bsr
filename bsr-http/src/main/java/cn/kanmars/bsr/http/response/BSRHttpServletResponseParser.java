@@ -16,6 +16,8 @@ import cn.kanmars.bsr.http.util.DateUtils;
 import cn.kanmars.bsr.http.util.StringUtils;
 
 public class BSRHttpServletResponseParser {
+	
+	private static int chunkLength = 500*1024;//一个chunk为500K
 	/**
 	 * 创建一个指定内容的响应
 	 * @param status	状态
@@ -82,10 +84,9 @@ public class BSRHttpServletResponseParser {
 			response.setHeader("Content-Type", response.getContentType());
 		}
 		response.setHeader("Date", DateUtils.getGMTStr());
-		
+		//获取报文体
 		byte[] contentBytes = ((BSRServletOutputStream)response.getOutputStream()).getContentBytes();
-		//设置报文长度
-		int chunkLength = 5120;
+		//组装报文
 		if(contentBytes.length<=chunkLength){
 			//报文长度小于某个长度，则直接设置长度
 			response.setContentLength(contentBytes.length);
@@ -126,13 +127,13 @@ public class BSRHttpServletResponseParser {
 					//如果长度够一个chunk
 					bao.write((""+transD216X(chunkLength)+"\r\n").getBytes());
 					bao.write(contentBytes,i,chunkLength);
-					bao.write(("\r\n").getBytes());
+					//bao.write(("\r\n").getBytes());
 				}else{
 					//如果长度不够一个chunk
 					int length = contentBytes.length - i;
 					bao.write((""+transD216X(length)+"\r\n").getBytes());
 					bao.write(contentBytes,i,length);
-					bao.write(("\r\n").getBytes());
+					//bao.write(("\r\n").getBytes());
 				}
 			}
 			bao.write(("0\r\n\r\n").getBytes());
@@ -159,9 +160,7 @@ public class BSRHttpServletResponseParser {
 		
 		//进行压缩
 		contentBytes = transBytes2GzipBytes(contentBytes,0,contentBytes.length);
-		
-		//设置报文长度
-		int chunkLength = 5120;
+		//组装报文
 		if(contentBytes.length<=chunkLength){
 			//报文长度小于某个长度，则直接设置长度
 			response.setContentLength(contentBytes.length);
@@ -211,7 +210,7 @@ public class BSRHttpServletResponseParser {
 					bao.write(("\r\n").getBytes());
 				}
 			}
-			bao.write(("0\r\n\r\n").getBytes());
+			bao.write(("\r\n0\r\n\r\n").getBytes());
 		}
 		
 		return bao.toByteArray();
