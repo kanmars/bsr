@@ -86,13 +86,20 @@ public class BossThread extends Thread {
 									e.printStackTrace();
 								}
 							}
-						}else if(key.isReadable()|| key.isWritable()){
+						}else if(key.isReadable()){
 							//当客户端链接可读之后
-							//Logger.debug("客户端可操作..");
+							Logger.debug("客户端可读操作..");
 							SocketChannel socketChannel = (SocketChannel)key.channel();
 							BSRContext bsrContext = BSRContextRegister.getBSRContext(socketChannel);
 							boolean addResult = BSRContextRegister.addOperableBSRContext(bsrContext);
-							//Logger.debug("客户端已分发["+addResult+"]");
+							Logger.debug("客户端可读UUID["+bsrContext.getUuid()+"]分发["+addResult+"]");
+						}else if(key.isWritable()){
+							//当客户端链接可读之后
+							Logger.debug("客户端可写操作..");
+							SocketChannel socketChannel = (SocketChannel)key.channel();
+							BSRContext bsrContext = BSRContextRegister.getBSRContext(socketChannel);
+							boolean addResult = BSRContextRegister.addOperableBSRContext(bsrContext);
+							Logger.debug("客户端可写UUID["+bsrContext.getUuid()+"]分发["+addResult+"]");
 						}
 					}catch(Exception e){
 						//Logger.error("发生了异常", e);

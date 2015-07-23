@@ -132,7 +132,7 @@ public class BSRHttpServletResponseParser {
 					bao.write(("\r\n").getBytes());
 				}
 			}
-			bao.write(("\r\n0\r\n\r\n").getBytes());
+			bao.write(("0\r\n\r\n").getBytes());
 		}
 		
 		return bao.toByteArray();

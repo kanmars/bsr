@@ -48,7 +48,7 @@ public class WorkerThread extends Thread {
 					continue;
 				}
 				if(bsrContext.isRead()){
-					//Logger.debug("获取到可读事件，开始处理");
+					Logger.debug("获取到UUID["+bsrContext.getUuid()+"]可读事件，开始处理");
 					SocketChannel socketChannel = bsrContext.getSocketChannel();
 					if(!socketChannel.isConnected()){
 						BSRContextRegister.removeBSRContext(socketChannel);
@@ -76,11 +76,9 @@ public class WorkerThread extends Thread {
 								break;
 							}else if(length == -1){
 								//如果读取到-1则为已关闭状态
-								if(!socketChannel.isConnected()){
-									Logger.debug("read-1.socket关闭");
-									bsrPipeProcessor.execute(BSREvents.OP_CLOSE,bsrContext);
-									BSRContextRegister.removeBSRContext(socketChannel);
-								}
+								Logger.debug("read-1.socket关闭");
+								bsrPipeProcessor.execute(BSREvents.OP_CLOSE,bsrContext);
+								BSRContextRegister.removeBSRContext(socketChannel);
 							}else{
 								Logger.debug("通讯异常");
 							}
@@ -99,6 +97,7 @@ public class WorkerThread extends Thread {
 						BSRContextRegister.removeBSRContext(socketChannel);
 					}
 				}else if(bsrContext.isWrite()){
+					Logger.debug("获取到UUID["+bsrContext.getUuid()+"]可写事件，开始处理");
 					//Logger.debug("获取到写事件，开始处理");
 					SocketChannel socketChannel = bsrContext.getSocketChannel();
 					if(!socketChannel.isConnected()){
