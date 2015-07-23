@@ -18,7 +18,7 @@ import cn.kanmars.bsr.http.util.StringUtils;
 
 public class BSRHttpServletResponseParser {
 	
-	private static int chunkLength = 50*1024;//大的chunkLength = 50K
+	private static int chunkLength = 10*1024;//大的chunkLength = 50K
 	/**
 	 * 创建一个指定内容的响应
 	 * @param status	状态
@@ -138,16 +138,16 @@ public class BSRHttpServletResponseParser {
 					//如果长度够一个chunk
 					bao.write((""+transD216X(chunkLength)+"\r\n").getBytes());
 					bao.write(contentBytes,i,chunkLength);
-					//bao.write(("\r\n").getBytes());
+					//bao.write(("\r\n").getBytes());//chunk后加换行，会导致ie不支持
 				}else{
 					//如果长度不够一个chunk
 					int length = contentBytes.length - i;
 					bao.write((""+transD216X(length)+"\r\n").getBytes());
 					bao.write(contentBytes,i,length);
-					//bao.write(("\r\n").getBytes());
+					//bao.write(("\r\n").getBytes());//chunk后加换行，会导致ie不支持
 				}
 			}
-			bao.write(("0\r\n\r\n").getBytes());
+			bao.write(("\r\n0\r\n\r\n").getBytes());//trunk全部结束后，必须加\r\n，然后是0\r\n
 		}
 		
 		return bao.toByteArray();
@@ -180,6 +180,7 @@ public class BSRHttpServletResponseParser {
 	 * @return
 	 */
 	public static boolean browserSupportChunk(BSRHttpServletRequest bsrHttpServletRequest){
+		if(1==1)return true;
 		String userAgent =  bsrHttpServletRequest.getHeader("User-Agent");
 		if(userAgent==null){
 			return false;
