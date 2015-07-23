@@ -51,8 +51,11 @@ public class BackGroundThread extends Thread {
 		}
 	}
 	
-	public void startup(){
-		ThreadRegister.backgroundExecutorService.execute(this);
+	public static void bootstrap(){
+		for(int i=0;i<Integer.parseInt(BSRConfiger.getConfig(BSRConstants.BACK_THREAD_NUMBER));i++){
+			BackGroundThread bgt = new BackGroundThread();
+			ThreadRegister.backgroundExecutorService.execute(bgt);
+		}
 	}
 	
 }

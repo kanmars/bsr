@@ -99,8 +99,7 @@ public class BootStrap {
 	 * @throws NumberFormatException 
 	 */
 	public static void runBossThread() throws NumberFormatException, InterruptedException{
-		BossThread bt = new BossThread(SelectorHolder.getSocketSelector(), ServerSocketChannelHolder.getServerSocketChannel());
-		bt.startup();
+		BossThread.bootstrap(SelectorHolder.getSocketSelector(), ServerSocketChannelHolder.getServerSocketChannel());
 		Thread.sleep(Long.parseLong(BSRConfiger.getConfig(BSRConstants.THREAD_SKIPTIME)));
 	}
 	
@@ -116,9 +115,8 @@ public class BootStrap {
 		/**生成管道线处理器*/
 		SimpleBSRPipeProcessor bsrPipeProcessor = new SimpleBSRPipeProcessor(bsrPipeLine);
 		/**启动Worker线程*/
-		WorkerThread wt = new WorkerThread();
-		wt.setBsrPipeProcessor(bsrPipeProcessor);
-		wt.startup();
+		/**启动Worker线程*/
+		WorkerThread.bootstrap(bsrPipeProcessor);
 		Thread.sleep(Long.parseLong(BSRConfiger.getConfig(BSRConstants.THREAD_SKIPTIME)));
 	}
 	/**
@@ -127,8 +125,7 @@ public class BootStrap {
 	 * @throws NumberFormatException 
 	 */
 	public static void runBackThread() throws NumberFormatException, InterruptedException{
-		BackGroundThread bgt = new BackGroundThread();
-		bgt.startup();
+		BackGroundThread.bootstrap();
 		Thread.sleep(Long.parseLong(BSRConfiger.getConfig(BSRConstants.THREAD_SKIPTIME)));
 	}
 }

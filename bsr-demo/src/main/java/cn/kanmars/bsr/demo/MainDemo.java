@@ -3,17 +3,15 @@ package cn.kanmars.bsr.demo;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
+import cn.kanmars.bsr.pipe.BSRPipelineProcessor;
+import cn.kanmars.bsr.pipe.impl.HttpProtocolPipe;
+import cn.kanmars.bsr.pipe.impl.HttpResourcePipe;
 import cn.kanmars.bsr.server.cache.BSRPoolsHolder;
 import cn.kanmars.bsr.server.config.BSRConfiger;
 import cn.kanmars.bsr.server.constant.BSRConstants;
 import cn.kanmars.bsr.server.jmx.BSRJMXAgent;
 import cn.kanmars.bsr.server.pipe.BSRPipe;
-import cn.kanmars.bsr.pipe.BSRPipelineProcessor;
-import cn.kanmars.bsr.pipe.impl.HttpProtocolPipe;
-import cn.kanmars.bsr.pipe.impl.HttpResourcePipe;
 import cn.kanmars.bsr.server.socket.channel.ServerSocketChannelHolder;
 import cn.kanmars.bsr.server.socket.selector.SelectorHolder;
 import cn.kanmars.bsr.server.thread.back.BackGroundThread;
@@ -101,10 +99,7 @@ public static void main(String[] args) throws Exception {
 	 * @throws NumberFormatException 
 	 */
 	public static void runBossThread() throws NumberFormatException, InterruptedException{
-		for(int i=0;i<Integer.parseInt(BSRConfiger.getConfig(BSRConstants.BOSS_THREAD_NUMBER));i++){
-			BossThread bt = new BossThread(SelectorHolder.getSocketSelector(), ServerSocketChannelHolder.getServerSocketChannel());
-			bt.startup();
-		}
+		BossThread.bootstrap(SelectorHolder.getSocketSelector(), ServerSocketChannelHolder.getServerSocketChannel());
 		Thread.sleep(Long.parseLong(BSRConfiger.getConfig(BSRConstants.THREAD_SKIPTIME)));
 	}
 	
@@ -121,10 +116,7 @@ public static void main(String[] args) throws Exception {
 		/**生成管道线处理器*/
 		BSRPipelineProcessor bsrPipeProcessor = new BSRPipelineProcessor(bsrPipeLine);
 		/**启动Worker线程*/
-		for(int i=0;i<Integer.parseInt(BSRConfiger.getConfig(BSRConstants.WORKER_THREAD_NUMBER));i++){
-			WorkerThread wt = new WorkerThread(bsrPipeProcessor);
-			wt.startup();
-		}
+		WorkerThread.bootstrap(bsrPipeProcessor);
 		Thread.sleep(Long.parseLong(BSRConfiger.getConfig(BSRConstants.THREAD_SKIPTIME)));
 	}
 	/**
@@ -133,10 +125,7 @@ public static void main(String[] args) throws Exception {
 	 * @throws NumberFormatException 
 	 */
 	public static void runBackThread() throws NumberFormatException, InterruptedException{
-		for(int i=0;i<Integer.parseInt(BSRConfiger.getConfig(BSRConstants.BACK_THREAD_NUMBER));i++){
-			BackGroundThread bgt = new BackGroundThread();
-			bgt.startup();
-		}
+		BackGroundThread.bootstrap();
 		Thread.sleep(Long.parseLong(BSRConfiger.getConfig(BSRConstants.THREAD_SKIPTIME)));
 	}
 

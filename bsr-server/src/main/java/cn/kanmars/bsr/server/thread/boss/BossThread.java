@@ -8,9 +8,13 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Random;
 
+import cn.kanmars.bsr.server.config.BSRConfiger;
+import cn.kanmars.bsr.server.constant.BSRConstants;
 import cn.kanmars.bsr.server.context.BSRContext;
 import cn.kanmars.bsr.server.context.BSRContextRegister;
 import cn.kanmars.bsr.server.log.Logger;
+import cn.kanmars.bsr.server.socket.channel.ServerSocketChannelHolder;
+import cn.kanmars.bsr.server.socket.selector.SelectorHolder;
 import cn.kanmars.bsr.server.thread.ThreadRegister;
 
 /**
@@ -112,8 +116,11 @@ public class BossThread extends Thread {
 		}
 	}
 	
-	public void startup(){
-		ThreadRegister.bossExecutorService.execute(this);
+	public static void bootstrap(Selector selector, ServerSocketChannel serverSocketChannel){
+		for(int i=0;i<Integer.parseInt(BSRConfiger.getConfig(BSRConstants.BOSS_THREAD_NUMBER));i++){
+			BossThread bt = new BossThread(SelectorHolder.getSocketSelector(), ServerSocketChannelHolder.getServerSocketChannel());
+			ThreadRegister.bossExecutorService.execute(bt);
+		}
 	}
 
 }

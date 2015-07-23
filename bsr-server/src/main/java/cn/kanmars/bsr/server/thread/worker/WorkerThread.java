@@ -5,6 +5,8 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SocketChannel;
 
 import cn.kanmars.bsr.server.cache.BSRPoolsHolder;
+import cn.kanmars.bsr.server.config.BSRConfiger;
+import cn.kanmars.bsr.server.constant.BSRConstants;
 import cn.kanmars.bsr.server.context.BSRContext;
 import cn.kanmars.bsr.server.context.BSRContextRegister;
 import cn.kanmars.bsr.server.event.BSREvents;
@@ -132,8 +134,13 @@ public class WorkerThread extends Thread {
 		}
 	}
 	
-	public void startup(){
-		ThreadRegister.workerExecutorService.execute(this);
+	public static void bootstrap(AbstracePipelineProcessor bsrPipeProcessor){
+		/**启动Worker线程*/
+		for(int i=0;i<Integer.parseInt(BSRConfiger.getConfig(BSRConstants.WORKER_THREAD_NUMBER));i++){
+			WorkerThread wt = new WorkerThread(bsrPipeProcessor);
+			ThreadRegister.workerExecutorService.execute(wt);
+		}
+		
 	}
 
 }
