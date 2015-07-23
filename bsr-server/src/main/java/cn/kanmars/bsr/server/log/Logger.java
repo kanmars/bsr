@@ -16,6 +16,8 @@ import cn.kanmars.bsr.server.constant.BSRConstants;
 public class Logger {
 	
 	static{
+		/*DEBUG模式，日志全部清空*/
+		/*
 		try {
 			PrintWriter pw = new PrintWriter(new FileOutputStream(new File(getLogFile()),false));
 			pw.println("--start--");
@@ -23,6 +25,7 @@ public class Logger {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
+		*/
 	}
 	
 	public static String getLogFile(){
