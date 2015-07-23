@@ -55,7 +55,7 @@ public class HttpProtocolPipe extends BSRPipe{
 			}else if(bsrEvents.equals(BSREvents.OP_WRITE)){
 				
 				BSRContext bsrContext = (BSRContext)objs[0];
-				if(bsrContext.isLive()){
+				if(bsrContext.isLive()&&bsrContext.isWrite()){
 					//写出数据
 					bsrContext.write(bsrContext.getWriteBao().toByteArray());
 					//输出后，清空内容
