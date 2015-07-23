@@ -14,6 +14,7 @@ public class BSRConstants {
 	public static final String MAXCONNECTIONS = "MAXCONNECTIONS";
 	public static final String BYTEBUFFER_NUMBER = "BYTEBUFFER_NUMBER";
 	public static final String BYTEBUFFER_SIZE = "BYTEBUFFER_SIZE";
+	public static final String BYTECACHE_EXPIRESECOND = "BYTECACHE_EXPIRESECOND";
 	public static final String LOG_FILE = "LOG_FILE";
 	public static final String ROOT_DIR = "ROOT_DIR";
 	

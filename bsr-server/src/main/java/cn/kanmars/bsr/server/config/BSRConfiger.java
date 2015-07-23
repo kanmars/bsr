@@ -61,7 +61,9 @@ public class BSRConfiger {
 		configs.put(BSRConstants.BYTEBUFFER_NUMBER, "10000");
 		/**缓冲区池中缓冲对象每个的大小*/
 		configs.put(BSRConstants.BYTEBUFFER_SIZE, "10240");
-		/**缓冲区池中缓冲对象每个的大小*/
+		/**BYTE缓存的缓存时间*/
+		configs.put(BSRConstants.BYTECACHE_EXPIRESECOND, "60");
+		/**日志路径*/
 		configs.put(BSRConstants.LOG_FILE, "E:/1log.txt");
 		/**静态资源的ROOT路径*/
 		configs.put(BSRConstants.ROOT_DIR, "E:/kanmars.github.com/_site/");

@@ -15,8 +15,6 @@ import cn.kanmars.bsr.server.constant.BSRConstants;
  */
 public class Logger {
 	
-	
-	
 	static{
 		try {
 			PrintWriter pw = new PrintWriter(new FileOutputStream(new File(getLogFile()),false));

@@ -3,6 +3,9 @@ package cn.kanmars.bsr.server.cache.bytecache;
 import java.util.Date;
 import java.util.TreeMap;
 
+import cn.kanmars.bsr.server.config.BSRConfiger;
+import cn.kanmars.bsr.server.constant.BSRConstants;
+
 /**
  * BSR的缓存池
  * @author baolong
@@ -82,7 +85,7 @@ public class BSRByteCache {
 		long t = new Date().getTime();
 		bsrByteCacheData.setCreatetime(t);
 		bsrByteCacheData.setLastRequestTime(t);
-		bsrByteCacheData.setExpiretime(10*1000);//10秒过期
+		bsrByteCacheData.setExpiretime(Integer.parseInt(BSRConfiger.getConfig(BSRConstants.BYTECACHE_EXPIRESECOND))*1000);//N秒过期
 		treeMap.put(uri, bsrByteCacheData);
 	}
 }
