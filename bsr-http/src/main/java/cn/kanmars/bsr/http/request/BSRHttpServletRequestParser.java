@@ -225,20 +225,27 @@ public class BSRHttpServletRequestParser{
 			ByteArrayOutputStream request_bao = new ByteArrayOutputStream();
 			int start = endofhead+4;
 			while(true){
+				if( bytes.length - 1 <= start ){
+					break;//长度超出
+				}
+				if(bytes[start]=='\r' || bytes[start]=='\n' ){
+					start = start + 1;
+					continue;
+				}
 				int end = ByteUtils.byteIndexOf(bytes, new byte[]{'\r','\n'}, start);
 				if(end <=start){
 					//如果已经到达末尾，则退出
 					break;
 				}
 				// 3 4 5 6
-				// 1 0 0 \r \n
+				// 1 0 0 \r \n//此处为16进制的长度
 				String chunk_length = new String (bytes,start,end - start);
-				if(Integer.parseInt(chunk_length)==0){
+				if(Integer.parseInt(chunk_length,16)==0){
 					//如果已经到了最后一个chunk
 					break;
 				}
-				request_bao.write(bytes,end+2,Integer.parseInt(chunk_length));
-				start +=2;
+				request_bao.write(bytes,end+2,Integer.parseInt(chunk_length,16));
+				start = end + 2;
 			}
 			content = new String(request_bao.toByteArray(),bsrHttpServletRequest.getCharacterEncoding());
 		}else {
